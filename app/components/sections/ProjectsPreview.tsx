@@ -6,7 +6,7 @@ import { Stagger, StaggerItem } from "../ui/Stagger";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
 import { GlowLink } from "../ui/GlowButton";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -44,7 +44,11 @@ export default function ProjectsPreview() {
               </p>
             </div>
 
-            <GlowLink href="/projects" variant="secondary" className="shine-btn hidden sm:inline-flex gap-2">
+            <GlowLink
+              href="/projects"
+              variant="secondary"
+              className="shine-btn hidden sm:inline-flex gap-2"
+            >
               View all projects <ArrowRight size={16} />
             </GlowLink>
           </div>
@@ -54,7 +58,7 @@ export default function ProjectsPreview() {
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {PREVIEW.map((p) => (
                   <StaggerItem key={p.title}>
-                    <motion.a
+                    <m.a
                       href="/projects"
                       whileHover={{ y: -6 }}
                       transition={{ duration: 0.25, ease }}
@@ -83,14 +87,18 @@ export default function ProjectsPreview() {
                           View case study <ArrowRight size={16} />
                         </div>
                       </div>
-                    </motion.a>
+                    </m.a>
                   </StaggerItem>
                 ))}
               </div>
             </Stagger>
 
             <div className="mt-8 sm:hidden">
-              <GlowLink href="/projects" variant="primary" className="shine-btn w-full justify-center gap-2">
+              <GlowLink
+                href="/projects"
+                variant="primary"
+                className="shine-btn w-full justify-center gap-2"
+              >
                 View all projects <ArrowRight size={16} />
               </GlowLink>
             </div>

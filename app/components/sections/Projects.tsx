@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import Reveal from "../ui/Reveal";
 import { Stagger, StaggerItem } from "../ui/Stagger";
@@ -17,7 +18,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   ExternalLink,
   ArrowRight,
@@ -58,14 +59,11 @@ const ease = [0.22, 1, 0.36, 1] as const;
 function escapeRegExp(str: string) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-
 function HighlightText({ text, query }: { text: string; query: string }) {
   const q = query.trim();
   if (!q) return <>{text}</>;
-
   const safe = escapeRegExp(q);
   const parts = text.split(new RegExp(`(${safe})`, "ig"));
-
   return (
     <>
       {parts.map((part, i) =>
@@ -87,7 +85,6 @@ function HighlightText({ text, query }: { text: string; query: string }) {
 /* -------------------------------------------- */
 
 export default function Projects() {
-  // ===== DATA =====
   const PROJECTS: Project[] = useMemo(
     () => [
       {
@@ -161,7 +158,6 @@ export default function Projects() {
     []
   );
 
-  // ===== FILTERS / CONTROLS =====
   const [tab, setTab] = useState<Category>("All");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortMode>("featured");
@@ -190,17 +186,14 @@ export default function Projects() {
 
   const filtered = useMemo(() => {
     const list = [...baseFiltered];
-
     if (sort === "az") list.sort((a, b) => a.title.localeCompare(b.title));
     else if (sort === "category") {
       const order = { Social: 1, Branding: 2, Packaging: 3 } as const;
       list.sort((a, b) => order[a.category] - order[b.category]);
     }
-
     return list;
   }, [baseFiltered, sort]);
 
-  // ===== DIALOG STATE =====
   const [open, setOpen] = useState(false);
   const [activeIndexProject, setActiveIndexProject] = useState(0);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
@@ -245,7 +238,6 @@ export default function Projects() {
     setActiveSlideIndex((i) => (i - 1 + activeAlbum.length) % activeAlbum.length);
   }
 
-  // Keyboard nav
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -258,14 +250,12 @@ export default function Projects() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, dialogTab, activeAlbum.length, filtered.length]);
 
-  // Reset slide when switching to gallery
   useEffect(() => {
     if (!open) return;
     if (dialogTab === "gallery") setActiveSlideIndex(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dialogTab, open, activeProject?.title]);
 
-  // Keep active index safe when filters reduce list
   useEffect(() => {
     if (activeIndexProject > Math.max(filtered.length - 1, 0)) {
       setActiveIndexProject(0);
@@ -295,7 +285,7 @@ export default function Projects() {
             </a>
           </div>
 
-          {/* ✅ Sticky controls */}
+          {/* Sticky controls */}
           <div className="sticky top-3 z-40 mt-8">
             <div className="glass glass-highlight rounded-3xl border border-white/10 p-3">
               <div className="grid gap-3 md:grid-cols-12">
@@ -359,36 +349,25 @@ export default function Projects() {
 
           {/* Grid */}
           <div className="relative mt-10">
-            <div
-              className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[720px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl opacity-70"
-              style={{
-                background:
-                  "radial-gradient(circle, rgba(64,255,0,0.14) 0%, rgba(124,58,237,0.08) 35%, rgba(0,0,0,0) 70%)",
-              }}
-            />
-
             <Stagger>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {filtered.map((p, idx) => (
                   <StaggerItem key={p.title}>
-                    <motion.div
+                    <m.div
                       whileHover={{ y: -6 }}
                       transition={{ duration: 0.25, ease }}
                       onClick={() => openProjectByIndex(idx)}
                       className="glass glass-highlight glow-hover cursor-pointer rounded-3xl overflow-hidden border border-white/10"
                     >
                       <div className="relative h-44 w-full overflow-hidden bg-white/5">
-                        {p.cover ? (
-                          <img
-                            src={p.cover}
-                            alt={p.title}
-                            className="h-full w-full object-cover transition duration-300 hover:scale-[1.03]"
-                          />
-                        ) : (
-                          <div className="h-full w-full bg-gradient-to-br from-[#40FF00]/15 via-transparent to-transparent" />
-                        )}
-
-                        <div className="absolute left-3 top-3">
+                        <Image
+                          src={p.cover || "/projects/p1.png"}
+                          alt={p.title}
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 33vw"
+                          className="object-cover transition duration-300 hover:scale-[1.03]"
+                        />
+                        <div className="absolute left-3 top-3 z-10">
                           <Badge variant="secondary" className="glass">{p.category}</Badge>
                         </div>
                       </div>
@@ -414,7 +393,7 @@ export default function Projects() {
                           Open Case Study <ArrowRight size={16} />
                         </div>
                       </div>
-                    </motion.div>
+                    </m.div>
                   </StaggerItem>
                 ))}
               </div>
@@ -470,31 +449,12 @@ export default function Projects() {
 
                       <TabsContent value="overview" className="mt-6">
                         <div className="grid gap-6 lg:grid-cols-2">
-                          <motion.div
-                            initial={{ opacity: 0, y: 14 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, ease }}
-                            className="glass glass-highlight rounded-3xl p-6 border border-white/10"
-                          >
+                          <div className="glass glass-highlight rounded-3xl p-6 border border-white/10">
                             <div className="text-sm font-semibold">Overview</div>
                             <p className="mt-2 text-sm text-white/70">{activeProject.caseStudy.overview}</p>
+                          </div>
 
-                            <div className="mt-6 grid gap-3">
-                              <div className="text-xs font-semibold text-white/60">Role</div>
-                              <div className="flex flex-wrap gap-2">
-                                {activeProject.caseStudy.role.map((x) => (
-                                  <Badge key={x} variant="secondary" className="glass text-xs">{x}</Badge>
-                                ))}
-                              </div>
-                            </div>
-                          </motion.div>
-
-                          <motion.div
-                            initial={{ opacity: 0, y: 14 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, ease, delay: 0.06 }}
-                            className="glass glass-highlight rounded-3xl p-6 border border-white/10"
-                          >
+                          <div className="glass glass-highlight rounded-3xl p-6 border border-white/10">
                             <div className="text-sm font-semibold">Outcome</div>
                             <ul className="mt-3 space-y-2 text-sm text-white/70">
                               {activeProject.caseStudy.outcome.map((x) => (
@@ -526,7 +486,7 @@ export default function Projects() {
                                 <a href="/#contact">Start a project</a>
                               </Button>
                             </div>
-                          </motion.div>
+                          </div>
                         </div>
                       </TabsContent>
 
@@ -539,11 +499,13 @@ export default function Projects() {
                                   {activeAlbum.map((img, idx) => (
                                     <CarouselItem key={img.src}>
                                       <div className="relative aspect-video w-full">
-                                        <img
+                                        <Image
                                           src={img.src}
                                           alt={img.label || `Slide ${idx + 1}`}
-                                          className="h-full w-full object-cover"
-                                          onClick={() => setActiveSlideIndex(idx)}
+                                          fill
+                                          sizes="(max-width: 1024px) 100vw, 50vw"
+                                          className="object-cover"
+                                          priority={idx === 0}
                                         />
                                       </div>
                                     </CarouselItem>
@@ -564,12 +526,11 @@ export default function Projects() {
                                   <span className="glass rounded-full px-3 py-1 border border-white/10">
                                     Slide {slideNumber} / {totalSlides}
                                   </span>
-                                  <span>Use ← → arrows</span>
                                 </div>
                               </div>
 
                               <div className="h-2 w-full overflow-hidden rounded-full border border-white/10 bg-white/5">
-                                <motion.div
+                                <m.div
                                   className="h-full rounded-full"
                                   initial={{ width: 0 }}
                                   animate={{ width: `${progressPct}%` }}
@@ -595,43 +556,28 @@ export default function Projects() {
                                       : "border-white/10 hover:border-[#40FF00]/40",
                                   ].join(" ")}
                                 >
-                                  <img src={img.src} alt="thumb" className="h-14 w-full object-cover" />
+                                  <div className="relative h-14 w-full">
+                                    <Image src={img.src} alt="thumb" fill sizes="120px" className="object-cover" />
+                                  </div>
                                 </button>
                               ))}
                             </div>
                           </div>
 
-                          <motion.div
-                            initial={{ opacity: 0, y: 14 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, ease }}
-                            className="glass glass-highlight rounded-3xl p-6 border border-white/10"
-                          >
-                            <div className="text-sm font-semibold">Gallery Notes</div>
-                            <p className="mt-2 text-sm text-white/70">
-                              هنا بنعرض الصور كـAlbum، وبعدين بنضيف captions ووصف لكل لقطة حسب مشروعك الحقيقي.
-                            </p>
-
-                            <div className="mt-6">
-                              <div className="text-xs font-semibold text-white/60">Tools</div>
-                              <div className="mt-2 flex flex-wrap gap-2">
-                                {activeProject.caseStudy.tools.map((x) => (
-                                  <Badge key={x} variant="secondary" className="glass text-xs">{x}</Badge>
-                                ))}
-                              </div>
+                          <div className="glass glass-highlight rounded-3xl p-6 border border-white/10">
+                            <div className="text-sm font-semibold">Tools</div>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                              {activeProject.caseStudy.tools.map((x) => (
+                                <Badge key={x} variant="secondary" className="glass text-xs">{x}</Badge>
+                              ))}
                             </div>
-                          </motion.div>
+                          </div>
                         </div>
                       </TabsContent>
 
                       <TabsContent value="details" className="mt-6">
                         <div className="grid gap-6 lg:grid-cols-2">
-                          <motion.div
-                            initial={{ opacity: 0, y: 14 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, ease }}
-                            className="glass glass-highlight rounded-3xl p-6 border border-white/10"
-                          >
+                          <div className="glass glass-highlight rounded-3xl p-6 border border-white/10">
                             <div className="text-sm font-semibold">Deliverables</div>
                             <ul className="mt-3 space-y-2 text-sm text-white/70">
                               {activeProject.caseStudy.deliverables.map((x) => (
@@ -641,53 +587,19 @@ export default function Projects() {
                                 </li>
                               ))}
                             </ul>
-                          </motion.div>
+                          </div>
 
-                          <motion.div
-                            initial={{ opacity: 0, y: 14 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, ease, delay: 0.06 }}
-                            className="glass glass-highlight rounded-3xl p-6 border border-white/10"
-                          >
+                          <div className="glass glass-highlight rounded-3xl p-6 border border-white/10">
                             <div className="text-sm font-semibold">Tags</div>
                             <div className="mt-3 flex flex-wrap gap-2">
                               {activeProject.tags.map((t) => (
                                 <Badge key={t} variant="secondary" className="glass text-xs">{t}</Badge>
                               ))}
                             </div>
-
-                            <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-4">
-                              <div className="text-sm font-semibold">Next step</div>
-                              <p className="mt-1 text-sm text-white/70">
-                                ابعت brief بسيط في Contact، وأنا برجعلك بخطة تنفيذ + timeline + deliverables.
-                              </p>
-                            </div>
-                          </motion.div>
+                          </div>
                         </div>
                       </TabsContent>
                     </Tabs>
-                  </div>
-
-                  <div className="mt-8">
-                    <div className="text-sm font-semibold text-white/80">Related projects</div>
-                    <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                      {filtered.slice(0, 3).map((p, idx) => (
-                        <button
-                          key={p.title}
-                          onClick={() => openProjectByIndex(idx)}
-                          className={[
-                            "glass glass-hover glass-highlight rounded-2xl p-4 text-left transition border",
-                            idx === activeIndexProject ? "border-[#40FF00]/45" : "border-white/10",
-                          ].join(" ")}
-                        >
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="text-sm font-bold text-white">{p.title}</div>
-                            <Badge variant="secondary" className="glass text-xs">{p.category}</Badge>
-                          </div>
-                          <div className="mt-1 text-xs text-white/60 line-clamp-2">{p.desc}</div>
-                        </button>
-                      ))}
-                    </div>
                   </div>
                 </>
               ) : null}

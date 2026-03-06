@@ -1,27 +1,41 @@
 "use client";
 
 import { useEffect } from "react";
-import Lenis from "lenis";
+
+function prefersReducedMotion() {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
 
 export default function SmoothScroll() {
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.15,
-      smoothWheel: true,
-      wheelMultiplier: 0.9,
-      touchMultiplier: 1.2,
-    });
+    // ✅ إذا المستخدم مفعّل Reduce Motion: لا نشغّل Lenis
+    if (prefersReducedMotion()) return;
 
+    let lenis: any = null;
     let raf = 0;
-    const loop = (time: number) => {
-      lenis.raf(time);
+
+    (async () => {
+      const mod = await import("lenis");
+      const Lenis = mod.default;
+
+      lenis = new Lenis({
+        duration: 1.15,
+        smoothWheel: true,
+        wheelMultiplier: 0.9,
+        touchMultiplier: 1.2,
+      });
+
+      const loop = (time: number) => {
+        lenis.raf(time);
+        raf = requestAnimationFrame(loop);
+      };
       raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
+    })();
 
     return () => {
       cancelAnimationFrame(raf);
-      lenis.destroy();
+      if (lenis) lenis.destroy();
     };
   }, []);
 
