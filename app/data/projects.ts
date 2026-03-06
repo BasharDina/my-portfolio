@@ -14,26 +14,59 @@ export type BrandBook = {
 };
 
 export const socialClients: SocialClient[] = [
+ {
+  id: "todos",
+  name: "TODOS / FitPro",
+  niche: "Social Media",
+  cover: "/projects/social/todos/01.png", // مؤقتاً خليه نفس صورة 01 لو ما عندك cover
+  posts: [
+    "/projects/social/todos/01.png",
+    "/projects/social/todos/02.png",
+    "/projects/social/todos/03.png",
+  ],
+},
   {
-    id: "company-1",
-    name: "Company One",
-    niche: "Social Media",
-    cover: "/projects/social/company-1/cover.jpg",
-    posts: [
-      "/projects/social/company-1/01.jpg",
-      "/projects/social/company-1/02.jpg",
-      "/projects/social/company-1/03.jpg",
-    ],
-  },
-  {
-    id: "company-2",
+    id: "todos",
     name: "Company Two",
     niche: "Social Media",
-    cover: "/projects/social/company-2/cover.jpg",
+    cover: "/projects/social/todos/cover.jpg",
     posts: [
-      "/projects/social/company-2/01.jpg",
-      "/projects/social/company-2/02.jpg",
-      "/projects/social/company-2/03.jpg",
+      "/projects/social/todos/01.png",
+      "/projects/social/todos/02.png",
+      "/projects/social/todos/03.png",
+    ],
+  },
+   {
+    id: "خدماتي",
+    name: "خدماتي",
+    niche: "Social Media",
+    cover: "/projects/social/خدماتي/cover.jpg",
+    posts: [
+      "/projects/social/خدماتي/01.png",
+      "/projects/social/خدماتي/02.png",
+      "/projects/social/خدماتي/03.png",
+    ],
+  },
+    {
+    id: "مطبخ السلام",
+    name: "مطبخ السلام",
+    niche: "Social Media",
+    cover: "/projects/social/مطبخ السلام/cover.jpg",
+    posts: [
+      "/projects/social/مطبخ السلام/01.png",
+      "/projects/social/مطبخ السلام/02.png",
+      "/projects/social/مطبخ السلام/03.png",
+    ],
+  },
+      {
+    id: "مودة",
+    name: "مودة",
+    niche: "Social Media",
+    cover: "/projects/social/مودة/cover.jpg",
+    posts: [
+      "/projects/social/مودة/01.png",
+      "/projects/social/مودة/02.png",
+      "/projects/social/مودة/03.png",
     ],
   },
 ];
