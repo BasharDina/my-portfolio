@@ -246,10 +246,40 @@ body::before{
   display: flex;
   gap: 22px;
   height: 100%;
+  align-items: stretch;
   will-change: transform;
+  transition: transform 120ms linear;
 }
 
 .hscroll-card {
   flex: 0 0 auto;
-  width: min(520px, 86vw);
+  width: clamp(420px, 42vw, 560px); /* ذكي */
+  height: 100%;
+}
+
+.hscroll-card-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.hscroll-media {
+  position: relative;
+  height: 58%;
+  min-height: 240px;
+  overflow: hidden;
+}
+
+.hscroll-content {
+  height: 42%;
+}
+
+.hscroll-fade-right {
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 120px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(2, 6, 23, 0.92));
 }

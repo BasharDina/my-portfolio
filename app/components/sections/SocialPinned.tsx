@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/carousel";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { socialClients } from "@/app/data/projects";
+import { m, useReducedMotion } from "framer-motion";
 
 type Album = {
   title: string;
@@ -23,67 +24,35 @@ type Album = {
   images: string[];
 };
 
+function clamp(n: number, a = 0, b = 1) {
+  return Math.min(b, Math.max(a, n));
+}
+
 export default function SocialPinned() {
+  const reduceMotion = useReducedMotion();
+
   const albums: Album[] = useMemo(
     () =>
       socialClients.map((c) => ({
         title: c.name,
         meta: c.niche || "Social Media",
-        cover: c.cover,
+        cover: c.cover, // ممكن يكون 01.png مؤقتاً
         images: c.posts,
       })),
     []
   );
 
-  // ===== Pinned horizontal scroll logic
   const shellRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const [progress, setProgress] = useState(0); // 0..1
+  const [active, setActive] = useState(0);
 
-  useEffect(() => {
-    const shell = shellRef.current;
-    const track = trackRef.current;
-    if (!shell || !track) return;
-
-    const onScroll = () => {
-      const rect = shell.getBoundingClientRect();
-      const shellTop = rect.top;
-      const shellHeight = shell.offsetHeight;
-
-      // when shell enters viewport: start progress
-      const start = 0;
-      const end = -(shellHeight - window.innerHeight);
-      // end is negative value
-
-      const tRaw = (shellTop - start) / (end - start); // 0..1
-      const t = Math.min(1, Math.max(0, tRaw));
-      setProgress(t);
-    };
-
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, []);
-
-  useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
-
-    const maxX = track.scrollWidth - track.clientWidth; // how far we need to move
-    const x = -maxX * progress;
-    track.style.transform = `translate3d(${x}px, 0, 0)`;
-  }, [progress]);
-
-  // ===== Dialog (Album)
+  // ===== Dialog
   const [open, setOpen] = useState(false);
   const [activeAlbumIndex, setActiveAlbumIndex] = useState(0);
 
-  const active = albums[activeAlbumIndex];
-  const imgs = active?.images || [];
+  const activeAlbum = albums[activeAlbumIndex];
+  const imgs = activeAlbum?.images || [];
 
   function openAlbum(i: number) {
     setActiveAlbumIndex(i);
@@ -96,10 +65,67 @@ export default function SocialPinned() {
     setActiveAlbumIndex((i) => (i - 1 + Math.max(albums.length, 1)) % Math.max(albums.length, 1));
   }
 
-  // ===== Height of shell = viewport * (albums count) (gives long vertical scroll)
-  // tweak: 0.8 = tighter, 1.0 = longer
+  // ===== Shell height: كل ما زاد عدد الشركات زاد طول السكروول
+  // 0.85 يعطي إحساس سريع بس مش مزعج
   const scrollPages = Math.max(3, Math.round(albums.length * 0.85));
   const shellHeight = `calc(${scrollPages} * 100vh)`;
+
+  // ===== Scroll → progress
+  useEffect(() => {
+    if (reduceMotion) return;
+    const shell = shellRef.current;
+    const track = trackRef.current;
+    if (!shell || !track) return;
+
+    const onScroll = () => {
+      const rect = shell.getBoundingClientRect();
+      const shellTop = rect.top;
+      const shellHeightPx = shell.offsetHeight;
+
+      // shellTop: 0 عند بداية pin
+      // نحتاج progress من 0→1 خلال طول السكشن ناقص viewport
+      const start = 0;
+      const end = -(shellHeightPx - window.innerHeight); // negative
+
+      const t = clamp((shellTop - start) / (end - start));
+      setProgress(t);
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [reduceMotion]);
+
+  // ===== Apply translateX + active card
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    const maxX = track.scrollWidth - track.clientWidth;
+    const x = reduceMotion ? 0 : -maxX * progress;
+    track.style.transform = `translate3d(${x}px, 0, 0)`;
+
+    // active index based on progress
+    if (!albums.length) return;
+    const idx = Math.round(progress * (albums.length - 1));
+    setActive(clamp(idx / (albums.length - 1 || 1)) * (albums.length - 1));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [progress, reduceMotion]);
+
+  // ===== Active index as integer
+  const activeIndex = useMemo(() => {
+    if (!albums.length) return 0;
+    return Math.max(0, Math.min(albums.length - 1, Math.round(progress * (albums.length - 1))));
+  }, [progress, albums.length]);
+
+  // ===== Fallback cover if missing
+  function safeCover(a: Album) {
+    return a.cover || a.images?.[0] || "/projects/p1.png";
+  }
 
   return (
     <section id="social" className="py-14">
@@ -118,65 +144,99 @@ export default function SocialPinned() {
             </div>
           </div>
 
-          {/* pinned shell */}
           <div ref={shellRef} className="hscroll-shell mt-8" style={{ height: shellHeight }}>
-            <div className="hscroll-sticky glass glass-highlight border border-white/10">
-              <div className="h-full w-full p-5">
-                {/* progress bar */}
+            <div className="hscroll-sticky glass glass-highlight border border-white/10 relative">
+              <div className="h-full w-full p-5 relative">
+                {/* Progress row */}
                 <div className="mb-4 flex items-center justify-between gap-3">
-                  <div className="text-xs text-white/60">
-                    {Math.round(progress * 100)}%
-                  </div>
+                  <div className="text-xs text-white/60 w-10">{Math.round(progress * 100)}%</div>
+
                   <div className="h-2 flex-1 overflow-hidden rounded-full border border-white/10 bg-white/5">
                     <div
                       className="h-full rounded-full"
                       style={{
                         width: `${Math.round(progress * 100)}%`,
                         background:
-                          "linear-gradient(90deg, rgba(64,255,0,0.95), rgba(64,255,0,0.12))",
-                        boxShadow: "0 0 20px rgba(64,255,0,0.2)",
+                          "linear-gradient(90deg, rgba(64,255,0,0.98), rgba(64,255,0,0.16))",
+                        boxShadow: "0 0 22px rgba(64,255,0,0.22)",
                       }}
                     />
                   </div>
-                  <a href="/#contact" className="text-xs font-semibold text-[#40FF00] hover:opacity-90">
+
+                  <a
+                    href="/#contact"
+                    className="text-xs font-semibold text-[#40FF00] hover:opacity-90"
+                  >
                     Contact <ArrowRight size={14} className="inline-block ml-1" />
                   </a>
                 </div>
 
-                <div ref={trackRef} className="hscroll-track">
-                  {albums.map((a, idx) => (
-                    <button
-                      key={a.title}
-                      onClick={() => openAlbum(idx)}
-                      className="hscroll-card glass glass-hover glass-highlight glow-hover overflow-hidden rounded-3xl border border-white/10 text-left"
-                    >
-                      <div className="relative h-64 w-full overflow-hidden bg-white/5">
-                        <Image
-                          src={a.cover}
-                          alt={a.title}
-                          fill
-                          sizes="(max-width: 1024px) 90vw, 520px"
-                          className="object-cover"
-                        />
-                        <div className="absolute left-3 top-3">
-                          <Badge variant="secondary" className="glass">
-                            {a.meta || "Social Media"}
-                          </Badge>
-                        </div>
-                      </div>
+                {/* Track */}
+                <div className="relative h-[calc(100%-40px)]">
+                  <div ref={trackRef} className="hscroll-track">
+                    {albums.map((a, idx) => {
+                      const isActive = idx === activeIndex;
+                      return (
+                        <m.button
+                          key={a.title}
+                          onClick={() => openAlbum(idx)}
+                          className="hscroll-card text-left"
+                          animate={
+                            reduceMotion
+                              ? {}
+                              : {
+                                  scale: isActive ? 1.02 : 0.98,
+                                  opacity: isActive ? 1 : 0.75,
+                                }
+                          }
+                          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                        >
+                          <div className="hscroll-card-inner glass glass-highlight glow-hover overflow-hidden rounded-3xl border border-white/10">
+                            <div className="hscroll-media bg-white/5">
+                              <Image
+                                src={safeCover(a)}
+                                alt={a.title}
+                                fill
+                                sizes="(max-width: 1024px) 90vw, 520px"
+                                className="object-cover"
+                              />
 
-                      <div className="p-6">
-                        <div className="text-base font-bold text-white">{a.title}</div>
-                        <p className="mt-2 text-sm text-white/70">
-                          {a.images.length} posts • click to open
-                        </p>
+                              <div className="absolute left-3 top-3">
+                                <Badge variant="secondary" className="glass">
+                                  {a.meta || "Social Media"}
+                                </Badge>
+                              </div>
 
-                        <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#40FF00]">
-                          Open album <ArrowRight size={16} />
-                        </div>
-                      </div>
-                    </button>
-                  ))}
+                              {/* Active glow */}
+                              <div
+                                className="absolute inset-0 pointer-events-none"
+                                style={{
+                                  opacity: isActive ? 1 : 0,
+                                  transition: "opacity 300ms ease",
+                                  background:
+                                    "radial-gradient(600px circle at 20% 20%, rgba(64,255,0,0.12), transparent 55%)",
+                                }}
+                              />
+                            </div>
+
+                            <div className="hscroll-content p-6">
+                              <div className="text-base font-bold text-white">{a.title}</div>
+                              <p className="mt-2 text-sm text-white/70">
+                                {a.images.length} posts • click to open
+                              </p>
+
+                              <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#40FF00]">
+                                Open album <ArrowRight size={16} />
+                              </div>
+                            </div>
+                          </div>
+                        </m.button>
+                      );
+                    })}
+                  </div>
+
+                  {/* right fade for nicer cut */}
+                  <div className="hscroll-fade-right" />
                 </div>
               </div>
             </div>
@@ -185,13 +245,13 @@ export default function SocialPinned() {
           {/* Dialog */}
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="max-w-6xl glass-strong border-white/10">
-              {active ? (
+              {activeAlbum ? (
                 <>
                   <DialogHeader>
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <DialogTitle className="text-xl">{active.title}</DialogTitle>
-                        <p className="mt-1 text-sm text-white/70">{active.meta}</p>
+                        <DialogTitle className="text-xl">{activeAlbum.title}</DialogTitle>
+                        <p className="mt-1 text-sm text-white/70">{activeAlbum.meta}</p>
                       </div>
 
                       <div className="flex items-center gap-2">
@@ -207,7 +267,7 @@ export default function SocialPinned() {
 
                   <div className="mt-5 grid gap-6 lg:grid-cols-2">
                     <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-                      <Carousel opts={{ loop: true }} className="w-full" key={active.title}>
+                      <Carousel opts={{ loop: true }} className="w-full" key={activeAlbum.title}>
                         <CarouselContent>
                           {imgs.map((src, idx) => (
                             <CarouselItem key={src}>
@@ -232,8 +292,8 @@ export default function SocialPinned() {
                     <div className="glass glass-highlight rounded-3xl p-6 border border-white/10">
                       <div className="text-sm font-semibold text-white/90">Client Notes</div>
                       <p className="mt-2 text-sm text-white/70">
-                        هنا بنحط نبذة قصيرة عن الشغل: الهدف، الأسلوب، ونتيجة التصميم.
-                        لاحقًا بنضيف KPI أو قبل/بعد إذا بدك.
+                        اكتب هنا نبذة سريعة: نوع الخدمة + الهدف + ستايل التصميم.
+                        (بنخليها ديناميكية لاحقًا من الداتا)
                       </p>
 
                       <div className="mt-6 flex flex-wrap gap-2">

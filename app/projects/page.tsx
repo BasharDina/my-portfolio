@@ -9,6 +9,7 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useMemo, useState } from "react";
+import { ArrowRight } from "lucide-react";
 
 type BrandAlbum = { title: string; cover: string; images: string[] };
 
@@ -25,7 +26,6 @@ export default function ProjectsPage() {
     []
   );
 
-  // brand dialog
   const [openBrand, setOpenBrand] = useState(false);
   const [brandIndex, setBrandIndex] = useState(0);
   const brandActive = brandAlbums[brandIndex];
@@ -35,10 +35,20 @@ export default function ProjectsPage() {
       <section className="py-16">
         <Reveal>
           <div className="mx-auto max-w-[1320px] px-3 sm:px-4 lg:px-5">
-            <h1 className="text-4xl font-extrabold tracking-tight text-white">Projects</h1>
-            <p className="mt-2 text-sm text-white/70">
-              Social is cinematic scroll. Brand books are albums. Print next.
-            </p>
+            <div className="flex items-end justify-between gap-6">
+              <div>
+                <h1 className="text-4xl font-extrabold tracking-tight text-white">Projects</h1>
+                <p className="mt-2 text-sm text-white/70">
+                  Social is cinematic scroll. Brand books are albums. Print next.
+                </p>
+              </div>
+              <a
+                href="/#contact"
+                className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-[#40FF00] hover:opacity-90"
+              >
+                Let’s talk <ArrowRight size={16} />
+              </a>
+            </div>
 
             <div className="mt-8">
               <Tabs value={tab} onValueChange={(v) => setTab(v as any)}>
@@ -86,7 +96,10 @@ export default function ProjectsPage() {
                           </DialogHeader>
                           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {brandActive.images.map((src) => (
-                              <div key={src} className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                              <div
+                                key={src}
+                                className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 bg-white/5"
+                              >
                                 <Image src={src} alt="page" fill className="object-cover" />
                               </div>
                             ))}
