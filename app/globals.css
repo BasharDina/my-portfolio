@@ -229,3 +229,27 @@ body::before{
   transform: translateX(130%);
   transition: transform 650ms ease, opacity 220ms ease;
 }
+/* --- Horizontal Pinned Scroll (Social) --- */
+.hscroll-shell {
+  position: relative;
+}
+
+.hscroll-sticky {
+  position: sticky;
+  top: 88px; /* تحت navbar */
+  height: calc(100vh - 88px);
+  overflow: hidden;
+  border-radius: 28px;
+}
+
+.hscroll-track {
+  display: flex;
+  gap: 22px;
+  height: 100%;
+  will-change: transform;
+}
+
+.hscroll-card {
+  flex: 0 0 auto;
+  width: min(520px, 86vw);
+}
