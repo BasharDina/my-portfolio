@@ -42,125 +42,21 @@ export default function SocialPinned() {
     []
   );
 
-  // ===== pinned scroll basics
   const shellRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
 
-  const [progress, setProgress] = useState(0); // 0..1 derived from scroll position
+  const [progress, setProgress] = useState(0);
   const progressRef = useRef(0);
+
+  // smooth follow
   const rafRef = useRef<number | null>(null);
-
-  // smooth translate follow
   const currentXRef = useRef(0);
-  const targetXRef = useRef(0);
 
-  // snap debounce
-  const snapTimerRef = useRef<number | null>(null);
-  const snappingRef = useRef(false);
+  // measurements
+  const stepPxRef = useRef(520 + 22); // fallback
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  // ===== shell height (controls how long pinned stays)
-  const scrollPages = Math.max(3, Math.round(albums.length * 0.85));
-  const shellHeight = `calc(${scrollPages} * 100vh)`;
-
-  // ===== compute progress from window scroll
-  useEffect(() => {
-    const onScroll = () => {
-      const shell = shellRef.current;
-      if (!shell) return;
-
-      const startY = window.scrollY + shell.getBoundingClientRect().top;
-      const endY = startY + shell.offsetHeight - window.innerHeight;
-
-      const p = endY <= startY ? 0 : clamp((window.scrollY - startY) / (endY - startY));
-      progressRef.current = p;
-      setProgress(p);
-
-      // debounce snap
-      if (snapTimerRef.current) window.clearTimeout(snapTimerRef.current);
-      snapTimerRef.current = window.setTimeout(() => {
-        if (reduceMotion) return;
-        if (snappingRef.current) return;
-
-        const shell2 = shellRef.current;
-        const track = trackRef.current;
-        if (!shell2 || !track) return;
-
-        const start = window.scrollY + shell2.getBoundingClientRect().top;
-        const end = start + shell2.offsetHeight - window.innerHeight;
-        if (end <= start) return;
-
-        const maxX = track.scrollWidth - track.clientWidth;
-        if (maxX <= 0) return;
-
-        // nearest card index
-        const pNow = progressRef.current;
-        const nearest = Math.round(pNow * (albums.length - 1));
-        const snappedP = albums.length <= 1 ? 0 : nearest / (albums.length - 1);
-
-        // if very close, ignore
-        if (Math.abs(snappedP - pNow) < 0.02) return;
-
-        const targetScrollY = start + snappedP * (end - start);
-
-        snappingRef.current = true;
-        window.scrollTo({
-          top: targetScrollY,
-          behavior: "smooth",
-        });
-
-        // release snapping flag بعد شوي
-        window.setTimeout(() => {
-          snappingRef.current = false;
-        }, 350);
-      }, 160);
-    };
-
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (snapTimerRef.current) window.clearTimeout(snapTimerRef.current);
-    };
-  }, [albums.length, reduceMotion]);
-
-  // ===== animate translateX with lerp (smooth follow)
-  useEffect(() => {
-    const loop = () => {
-      const track = trackRef.current;
-      if (!track) {
-        rafRef.current = requestAnimationFrame(loop);
-        return;
-      }
-
-      const maxX = track.scrollWidth - track.clientWidth;
-      const p = reduceMotion ? 0 : progressRef.current;
-      const target = -maxX * p;
-      targetXRef.current = target;
-
-      // lerp
-      const current = currentXRef.current;
-      const next = current + (target - current) * 0.12;
-      currentXRef.current = next;
-
-      track.style.transform = `translate3d(${next}px,0,0)`;
-
-      rafRef.current = requestAnimationFrame(loop);
-    };
-
-    rafRef.current = requestAnimationFrame(loop);
-    return () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
-  }, [reduceMotion]);
-
-  const activeIndex = useMemo(() => {
-    if (!albums.length) return 0;
-    return Math.max(0, Math.min(albums.length - 1, Math.round(progress * (albums.length - 1))));
-  }, [progress, albums.length]);
-
-  // ===== album dialog
+  // ===== Dialog
   const [open, setOpen] = useState(false);
   const [activeAlbumIndex, setActiveAlbumIndex] = useState(0);
 
@@ -182,6 +78,91 @@ export default function SocialPinned() {
     return a.cover || a.images?.[0] || "/projects/p1.png";
   }
 
+  // ===== shell height
+  const scrollPages = Math.max(3, Math.round(albums.length * 0.9));
+  const shellHeight = `calc(${scrollPages} * 100vh)`;
+
+  // ===== measure card width + gap from DOM (REAL)
+  useEffect(() => {
+    const measure = () => {
+      const track = trackRef.current;
+      if (!track) return;
+
+      const firstCard = track.querySelector<HTMLElement>(".hscroll-card");
+      if (!firstCard) return;
+
+      const cardW = firstCard.getBoundingClientRect().width;
+      const styles = getComputedStyle(track);
+      const gapStr = styles.columnGap || styles.gap || "22px";
+      const gap = parseFloat(gapStr) || 22;
+
+      stepPxRef.current = cardW + gap;
+    };
+
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  // ===== compute progress from window scroll
+  useEffect(() => {
+    const onScroll = () => {
+      const shell = shellRef.current;
+      if (!shell) return;
+
+      const startY = window.scrollY + shell.getBoundingClientRect().top;
+      const endY = startY + shell.offsetHeight - window.innerHeight;
+
+      const p = endY <= startY ? 0 : clamp((window.scrollY - startY) / (endY - startY));
+      progressRef.current = p;
+      setProgress(p);
+
+      // active index
+      const idx = Math.round(p * (albums.length - 1));
+      setActiveIndex(Math.max(0, Math.min(albums.length - 1, idx)));
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [albums.length]);
+
+  // ===== animate translateX (MUST move cards)
+  useEffect(() => {
+    const loop = () => {
+      const track = trackRef.current;
+      if (!track) {
+        rafRef.current = requestAnimationFrame(loop);
+        return;
+      }
+
+      const step = stepPxRef.current;
+      const maxIndex = Math.max(0, albums.length - 1);
+      const virtualIndex = (reduceMotion ? 0 : progressRef.current) * maxIndex;
+
+      // target X based on step
+      const targetX = -(virtualIndex * step);
+
+      // smooth follow
+      const current = currentXRef.current;
+      const next = current + (targetX - current) * 0.14;
+      currentXRef.current = next;
+
+      track.style.transform = `translate3d(${next}px,0,0)`;
+
+      rafRef.current = requestAnimationFrame(loop);
+    };
+
+    rafRef.current = requestAnimationFrame(loop);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [albums.length, reduceMotion]);
+
   return (
     <section id="social" className="py-14">
       <Reveal>
@@ -190,12 +171,13 @@ export default function SocialPinned() {
             <div>
               <h2 className="text-3xl font-bold tracking-tight">Social Clients</h2>
               <p className="mt-2 text-sm text-white/70">
-                Scroll down — gallery moves sideways. Click any card to open the album.
+                Scroll down — the gallery moves sideways. Click any card to open the album.
               </p>
             </div>
+
             <div className="hidden sm:flex items-center gap-2 text-xs text-white/60">
               <span className="h-1.5 w-1.5 rounded-full bg-[#40FF00]" />
-              <span>Now viewing: </span>
+              <span className="text-white/60">Now viewing:</span>
               <span className="text-white/85 font-semibold">{albums[activeIndex]?.title}</span>
             </div>
           </div>
@@ -239,7 +221,7 @@ export default function SocialPinned() {
                             reduceMotion
                               ? {}
                               : {
-                                  scale: isActive ? 1.02 : 0.98,
+                                  scale: isActive ? 1.02 : 0.985,
                                   opacity: isActive ? 1 : 0.78,
                                 }
                           }
@@ -344,20 +326,8 @@ export default function SocialPinned() {
                     <div className="glass glass-highlight rounded-3xl p-6 border border-white/10">
                       <div className="text-sm font-semibold text-white/90">Client Notes</div>
                       <p className="mt-2 text-sm text-white/70">
-                        لاحقًا بنضيف لكل شركة: الهدف + أسلوب التصميم + أدوات التنفيذ.
+                        لاحقاً بنضيف: الهدف + أسلوب التصميم + النتائج.
                       </p>
-
-                      <div className="mt-6 flex flex-wrap gap-2">
-                        <Badge variant="secondary" className="glass">Social</Badge>
-                        <Badge variant="secondary" className="glass">Campaign</Badge>
-                        <Badge variant="secondary" className="glass">Premium layout</Badge>
-                      </div>
-
-                      <div className="mt-7">
-                        <a href="/#contact" className="text-sm font-semibold text-[#40FF00] hover:opacity-90">
-                          Request similar work <ArrowRight size={16} className="inline-block ml-1" />
-                        </a>
-                      </div>
                     </div>
                   </div>
                 </>
