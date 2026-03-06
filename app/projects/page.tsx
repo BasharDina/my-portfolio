@@ -1,8 +1,7 @@
 "use client";
 
 import Reveal from "../components/ui/Reveal";
-import SocialPinned from "../components/sections/SocialPinned";
-
+import SocialPinnedGSAP from "../components/sections/SocialPinnedGSAP";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { brandBooks } from "../data/projects";
 import Image from "next/image";
@@ -59,7 +58,7 @@ export default function ProjectsPage() {
                 </TabsList>
 
                 <TabsContent value="social" className="mt-8">
-                  <SocialPinned />
+                  <SocialPinnedGSAP /> 
                 </TabsContent>
 
                 <TabsContent value="brandbooks" className="mt-8">

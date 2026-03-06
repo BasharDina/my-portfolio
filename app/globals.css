@@ -1,285 +1,115 @@
+@import "./styles/tokens.css";
+
+/* Tailwind v4 */
 @import "tailwindcss";
 @import "tw-animate-css";
+
+/* إذا عندك shadcn/tailwind.css وخربط، خلي السطر هذا موجود.
+   لو رجع يعمل مشاكل احذفه فقط. */
 @import "shadcn/tailwind.css";
+
 @custom-variant dark (&:is(.dark *));
 
 html { scroll-behavior: smooth; }
 
 :root{
-  --radius: 0.75rem;
+  --bg:#020617;
+  --fg:#f1f5f9;
+  --accent:#40ff00;
 
-  /* Web3 dark palette */
-  --background: #05060A;
-  --foreground: #EAF0FF;
+  --glass: rgba(255,255,255,.06);
+  --glass-strong: rgba(255,255,255,.09);
+  --border: rgba(255,255,255,.12);
 
-  --card: #0B0F17;
-  --card-foreground: #EAF0FF;
+  --radius: 18px;
 
-  --popover: #0B0F17;
-  --popover-foreground: #EAF0FF;
-
-  --muted: rgba(255,255,255,0.06);
-  --muted-foreground: #93A4C7;
-
-  --border: rgba(255,255,255,0.10);
-  --input: rgba(255,255,255,0.14);
-
-  --primary: #40FF00;
-  --primary-foreground: #000000;
-
-  --ring: rgba(64,255,0,0.60);
+  --hgap: 22px;
 }
 
-/* base */
-@layer base {
-  body {
-    background: var(--background);
-    color: var(--foreground);
-  }
+body{
+  background: var(--bg);
+  color: var(--fg);
+  overflow-x: hidden;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
 }
 
-/* subtle grain */
-body::before{
-  content:"";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.08;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+*{
+  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease, transform 200ms ease;
 }
 
-/* glow border follows mouse */
-.glow-btn { --x: 50%; --y: 50%; }
-.glow-btn .glow-border {
-  pointer-events: none;
-  position: absolute;
-  inset: -1px;
-  border-radius: 18px;
-  padding: 1px;
-  background: radial-gradient(
-    180px circle at var(--x) var(--y),
-    rgba(64, 255, 0, 0.95),
-    rgba(124, 58, 237, 0.20),
-    rgba(0,0,0,0) 60%
-  );
-  opacity: 0;
-  transition: opacity 220ms ease;
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-}
-.glow-btn:hover .glow-border { opacity: 1; }
-
-/* --- Button Shine (cursor-follow highlight) --- */
-.shine-btn {
-  --mx: 50%;
-  --my: 50%;
-  position: relative;
-  overflow: hidden;
-}
-
-.shine-btn::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 220ms ease;
-  background: radial-gradient(
-    220px circle at var(--mx) var(--my),
-    rgba(255,255,255,0.18),
-    rgba(64,255,0,0.18),
-    rgba(124,58,237,0.10),
-    rgba(0,0,0,0) 60%
-  );
-}
-
-.shine-btn:hover::before {
-  opacity: 1;
-}
-
-.shine-btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 220ms ease;
-  background: linear-gradient(
-    120deg,
-    transparent 0%,
-    rgba(255,255,255,0.20) 15%,
-    transparent 30%
-  );
-  transform: translateX(-120%);
-}
-
-.shine-btn:hover::after {
-  opacity: 0.9;
-  transform: translateX(120%);
-  transition: transform 650ms ease, opacity 220ms ease;
-}
-
-/* =========================
-   GLASS SYSTEM (3web style)
-   ========================= */
-
-/* softer border globally */
-:root{
-  --glass: rgba(255,255,255,0.035);
-  --glass-2: rgba(255,255,255,0.05);
-  --glass-border: rgba(255,255,255,0.08);
-  --glass-border-2: rgba(255,255,255,0.10);
-  --glass-shadow: 0 28px 90px rgba(0,0,0,0.40);
-  --glass-shadow-soft: 0 18px 60px rgba(0,0,0,0.28);
-  --glass-glow: 0 0 0 1px rgba(64,255,0,0.16), 0 0 28px rgba(64,255,0,0.10);
-}
-
-/* reusable glass wrapper */
+/* ===== Glass helpers ===== */
 .glass{
   background: var(--glass);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .glass-strong{
-  background: var(--glass-2);
-  border: 1px solid var(--glass-border-2);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--glass-strong);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
 }
 
-.glass-hover{
-  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease, background-color 220ms ease;
-}
-
-.glass-hover:hover{
-  transform: translateY(-4px);
-  border-color: rgba(64,255,0,0.32);
-  box-shadow: var(--glass-shadow);
-}
-
-/* subtle inner highlight */
 .glass-highlight{
-  position: relative;
-  overflow: hidden;
-}
-.glass-highlight::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
-  opacity:0.55;
-  background: radial-gradient(circle at 25% 15%, rgba(255,255,255,0.10), rgba(0,0,0,0) 55%);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.07) inset,
+    0 18px 70px rgba(0,0,0,.35);
 }
 
-/* neon hover glow (optional class) */
 .glow-hover:hover{
-  box-shadow: var(--glass-shadow-soft), var(--glass-glow);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.10) inset,
+    0 30px 120px rgba(64,255,0,.08);
+  transform: translateY(-3px);
 }
 
-/* =========================
-   Button Shine (improved)
-   ========================= */
-.shine-btn {
-  --mx: 50%;
-  --my: 50%;
-  position: relative;
-  overflow: hidden;
-}
+/* ===== Horizontal pinned scroll ===== */
+.hscroll-shell{ position: relative; }
 
-.shine-btn::before {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 220ms ease;
-  background: radial-gradient(
-    240px circle at var(--mx) var(--my),
-    rgba(255,255,255,0.16),
-    rgba(64,255,0,0.16),
-    rgba(124,58,237,0.10),
-    rgba(0,0,0,0) 62%
-  );
-}
-
-.shine-btn:hover::before { opacity: 1; }
-
-.shine-btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 220ms ease;
-  background: linear-gradient(
-    120deg,
-    transparent 0%,
-    rgba(255,255,255,0.22) 16%,
-    transparent 32%
-  );
-  transform: translateX(-130%);
-}
-
-.shine-btn:hover::after {
-  opacity: 0.9;
-  transform: translateX(130%);
-  transition: transform 650ms ease, opacity 220ms ease;
-}
-/* --- Horizontal Pinned Scroll (Social) --- */
-.hscroll-shell {
-  position: relative;
-}
-
-.hscroll-sticky {
+.hscroll-sticky{
   position: sticky;
-  top: 88px; /* تحت navbar */
+  top: 88px;
   height: calc(100vh - 88px);
   overflow: hidden;
   border-radius: 28px;
 }
 
-.hscroll-track {
+.hscroll-track{
   display: flex;
-  gap: 22px;
+  gap: var(--hgap);
   height: 100%;
   align-items: stretch;
   will-change: transform;
-  transition: transform 120ms linear;
+  transform: translate3d(0,0,0);
 }
 
-.hscroll-card {
+.hscroll-card{
   flex: 0 0 auto;
-  width: clamp(420px, 42vw, 560px); /* ذكي */
+  width: clamp(420px, 42vw, 560px);
   height: 100%;
 }
 
-.hscroll-card-inner {
+.hscroll-card-inner{
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-.hscroll-media {
+.hscroll-media{
   position: relative;
   height: 58%;
   min-height: 240px;
   overflow: hidden;
 }
 
-.hscroll-content {
-  height: 42%;
-}
+.hscroll-content{ height: 42%; }
 
-.hscroll-fade-right {
+.hscroll-fade-right{
   pointer-events: none;
   position: absolute;
   right: 0;
   top: 0;
   width: 120px;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(2, 6, 23, 0.92));
+  background: linear-gradient(90deg, transparent, rgba(2,6,23,.92));
 }
