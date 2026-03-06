@@ -1,0 +1,18 @@
+:root{
+  --bg: #ffffff;
+  --fg: #0f172a;
+  --muted: #475569;
+  --card: #f8fafc;
+  --border: #e2e8f0;
+  --primary: #2563eb;
+  --radius: 16px;
+}
+
+.dark{
+  --bg:#020617;
+  --fg:#f1f5f9;
+  --muted:#94a3b8;
+  --card:#0b1220;
+  --border:#1f2937;
+  --primary:#60a5fa;
+}
