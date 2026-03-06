@@ -36,18 +36,131 @@ export default function SocialPinned() {
       socialClients.map((c) => ({
         title: c.name,
         meta: c.niche || "Social Media",
-        cover: c.cover, // ممكن يكون 01.png مؤقتاً
+        cover: c.cover,
         images: c.posts,
       })),
     []
   );
 
+  // ===== pinned scroll basics
   const shellRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
-  const [progress, setProgress] = useState(0); // 0..1
-  const [active, setActive] = useState(0);
 
-  // ===== Dialog
+  const [progress, setProgress] = useState(0); // 0..1 derived from scroll position
+  const progressRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+
+  // smooth translate follow
+  const currentXRef = useRef(0);
+  const targetXRef = useRef(0);
+
+  // snap debounce
+  const snapTimerRef = useRef<number | null>(null);
+  const snappingRef = useRef(false);
+
+  // ===== shell height (controls how long pinned stays)
+  const scrollPages = Math.max(3, Math.round(albums.length * 0.85));
+  const shellHeight = `calc(${scrollPages} * 100vh)`;
+
+  // ===== compute progress from window scroll
+  useEffect(() => {
+    const onScroll = () => {
+      const shell = shellRef.current;
+      if (!shell) return;
+
+      const startY = window.scrollY + shell.getBoundingClientRect().top;
+      const endY = startY + shell.offsetHeight - window.innerHeight;
+
+      const p = endY <= startY ? 0 : clamp((window.scrollY - startY) / (endY - startY));
+      progressRef.current = p;
+      setProgress(p);
+
+      // debounce snap
+      if (snapTimerRef.current) window.clearTimeout(snapTimerRef.current);
+      snapTimerRef.current = window.setTimeout(() => {
+        if (reduceMotion) return;
+        if (snappingRef.current) return;
+
+        const shell2 = shellRef.current;
+        const track = trackRef.current;
+        if (!shell2 || !track) return;
+
+        const start = window.scrollY + shell2.getBoundingClientRect().top;
+        const end = start + shell2.offsetHeight - window.innerHeight;
+        if (end <= start) return;
+
+        const maxX = track.scrollWidth - track.clientWidth;
+        if (maxX <= 0) return;
+
+        // nearest card index
+        const pNow = progressRef.current;
+        const nearest = Math.round(pNow * (albums.length - 1));
+        const snappedP = albums.length <= 1 ? 0 : nearest / (albums.length - 1);
+
+        // if very close, ignore
+        if (Math.abs(snappedP - pNow) < 0.02) return;
+
+        const targetScrollY = start + snappedP * (end - start);
+
+        snappingRef.current = true;
+        window.scrollTo({
+          top: targetScrollY,
+          behavior: "smooth",
+        });
+
+        // release snapping flag بعد شوي
+        window.setTimeout(() => {
+          snappingRef.current = false;
+        }, 350);
+      }, 160);
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (snapTimerRef.current) window.clearTimeout(snapTimerRef.current);
+    };
+  }, [albums.length, reduceMotion]);
+
+  // ===== animate translateX with lerp (smooth follow)
+  useEffect(() => {
+    const loop = () => {
+      const track = trackRef.current;
+      if (!track) {
+        rafRef.current = requestAnimationFrame(loop);
+        return;
+      }
+
+      const maxX = track.scrollWidth - track.clientWidth;
+      const p = reduceMotion ? 0 : progressRef.current;
+      const target = -maxX * p;
+      targetXRef.current = target;
+
+      // lerp
+      const current = currentXRef.current;
+      const next = current + (target - current) * 0.12;
+      currentXRef.current = next;
+
+      track.style.transform = `translate3d(${next}px,0,0)`;
+
+      rafRef.current = requestAnimationFrame(loop);
+    };
+
+    rafRef.current = requestAnimationFrame(loop);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [reduceMotion]);
+
+  const activeIndex = useMemo(() => {
+    if (!albums.length) return 0;
+    return Math.max(0, Math.min(albums.length - 1, Math.round(progress * (albums.length - 1))));
+  }, [progress, albums.length]);
+
+  // ===== album dialog
   const [open, setOpen] = useState(false);
   const [activeAlbumIndex, setActiveAlbumIndex] = useState(0);
 
@@ -65,134 +178,6 @@ export default function SocialPinned() {
     setActiveAlbumIndex((i) => (i - 1 + Math.max(albums.length, 1)) % Math.max(albums.length, 1));
   }
 
-  // ===== Shell height: كل ما زاد عدد الشركات زاد طول السكروول
-  // 0.85 يعطي إحساس سريع بس مش مزعج
-  const scrollPages = Math.max(3, Math.round(albums.length * 0.85));
-  const shellHeight = `calc(${scrollPages} * 100vh)`;
-
-  // ===== Scroll → progress
-  useEffect(() => {
-    if (reduceMotion) return;
-    const shell = shellRef.current;
-    const track = trackRef.current;
-    if (!shell || !track) return;
-
-    const onScroll = () => {
-      const rect = shell.getBoundingClientRect();
-      const shellTop = rect.top;
-      const shellHeightPx = shell.offsetHeight;
-
-      // shellTop: 0 عند بداية pin
-      // نحتاج progress من 0→1 خلال طول السكشن ناقص viewport
-      const start = 0;
-      const end = -(shellHeightPx - window.innerHeight); // negative
-
-      const t = clamp((shellTop - start) / (end - start));
-      setProgress(t);
-    };
-
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [reduceMotion]);
-
-  // ===== Smooth follow + soft snap
-const animRef = useRef<number | null>(null);
-const currentXRef = useRef(0);
-const targetXRef = useRef(0);
-const lastScrollRef = useRef(0);
-const lastMoveTsRef = useRef<number>(Date.now());
-
-useEffect(() => {
-  const track = trackRef.current;
-  const shell = shellRef.current;
-  if (!track || !shell) return;
-
-  const prefers = reduceMotion;
-
-  const tick = () => {
-    const maxX = track.scrollWidth - track.clientWidth;
-
-    // target from progress
-    const target = prefers ? 0 : -maxX * progress;
-    targetXRef.current = target;
-
-    // smooth follow (lerp)
-    const current = currentXRef.current;
-    const next = current + (target - current) * 0.12; // smoothing
-    currentXRef.current = next;
-
-    track.style.transform = `translate3d(${next}px, 0, 0)`;
-
-    // active index from "virtual progress"
-    const p = maxX > 0 ? clamp(Math.abs(next) / maxX) : 0;
-    const idx = Math.round(p * (albums.length - 1));
-    // setActiveIndex style
-    // (we rely on activeIndex computed from progress elsewhere, so optional)
-    // setActive(idx);
-
-    animRef.current = requestAnimationFrame(tick);
-  };
-
-  animRef.current = requestAnimationFrame(tick);
-  return () => {
-    if (animRef.current) cancelAnimationFrame(animRef.current);
-  };
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, [progress, reduceMotion, albums.length]);
-
-// Soft snap: when user stops scrolling, gently bias progress to nearest card
-useEffect(() => {
-  if (reduceMotion) return;
-
-  const onScroll = () => {
-    lastMoveTsRef.current = Date.now();
-    lastScrollRef.current = window.scrollY;
-  };
-
-  window.addEventListener("scroll", onScroll, { passive: true });
-
-  const snapTimer = window.setInterval(() => {
-    const idleMs = Date.now() - lastMoveTsRef.current;
-    if (idleMs < 120) return; // still moving
-
-    const track = trackRef.current;
-    if (!track) return;
-
-    const maxX = track.scrollWidth - track.clientWidth;
-    if (maxX <= 0) return;
-
-    // current X => nearest card index
-    const x = Math.abs(currentXRef.current);
-    const p = clamp(x / maxX);
-    const nearest = Math.round(p * (albums.length - 1));
-    const snappedP = (albums.length <= 1) ? 0 : nearest / (albums.length - 1);
-
-    // nudge progress towards snappedP
-    // (small easing so it feels magnetic)
-    const blended = progress + (snappedP - progress) * 0.08;
-    if (Math.abs(snappedP - progress) > 0.002) {
-      setProgress(blended);
-    }
-  }, 80);
-
-  return () => {
-    window.removeEventListener("scroll", onScroll);
-    window.clearInterval(snapTimer);
-  };
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, [reduceMotion, albums.length, progress]);
-  // ===== Active index as integer
-  const activeIndex = useMemo(() => {
-    if (!albums.length) return 0;
-    return Math.max(0, Math.min(albums.length - 1, Math.round(progress * (albums.length - 1))));
-  }, [progress, albums.length]);
-
-  // ===== Fallback cover if missing
   function safeCover(a: Album) {
     return a.cover || a.images?.[0] || "/projects/p1.png";
   }
@@ -205,22 +190,20 @@ useEffect(() => {
             <div>
               <h2 className="text-3xl font-bold tracking-tight">Social Clients</h2>
               <p className="mt-2 text-sm text-white/70">
-                Scroll down — the gallery moves sideways. Click any card to open the album.
+                Scroll down — gallery moves sideways. Click any card to open the album.
               </p>
             </div>
             <div className="hidden sm:flex items-center gap-2 text-xs text-white/60">
               <span className="h-1.5 w-1.5 rounded-full bg-[#40FF00]" />
-              <span>Vertical scroll → Horizontal showcase</span>
+              <span>Now viewing: </span>
+              <span className="text-white/85 font-semibold">{albums[activeIndex]?.title}</span>
             </div>
           </div>
 
           <div ref={shellRef} className="hscroll-shell mt-8" style={{ height: shellHeight }}>
             <div className="hscroll-sticky glass glass-highlight border border-white/10 relative">
               <div className="h-full w-full p-5 relative">
-                {/* Progress row */}
-                <div className="hidden md:block text-xs text-white/60">
-  Now viewing: <span className="text-white/85 font-semibold">{albums[activeIndex]?.title}</span>
-</div>
+                {/* progress row */}
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div className="text-xs text-white/60 w-10">{Math.round(progress * 100)}%</div>
 
@@ -236,19 +219,17 @@ useEffect(() => {
                     />
                   </div>
 
-                  <a
-                    href="/#contact"
-                    className="text-xs font-semibold text-[#40FF00] hover:opacity-90"
-                  >
+                  <a href="/#contact" className="text-xs font-semibold text-[#40FF00] hover:opacity-90">
                     Contact <ArrowRight size={14} className="inline-block ml-1" />
                   </a>
                 </div>
 
-                {/* Track */}
+                {/* track */}
                 <div className="relative h-[calc(100%-40px)]">
                   <div ref={trackRef} className="hscroll-track">
                     {albums.map((a, idx) => {
                       const isActive = idx === activeIndex;
+
                       return (
                         <m.button
                           key={a.title}
@@ -259,7 +240,7 @@ useEffect(() => {
                               ? {}
                               : {
                                   scale: isActive ? 1.02 : 0.98,
-                                  opacity: isActive ? 1 : 0.75,
+                                  opacity: isActive ? 1 : 0.78,
                                 }
                           }
                           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
@@ -270,24 +251,23 @@ useEffect(() => {
                                 src={safeCover(a)}
                                 alt={a.title}
                                 fill
-                                sizes="(max-width: 1024px) 90vw, 520px"
+                                sizes="(max-width: 1024px) 90vw, 560px"
                                 className="object-cover"
                               />
-
                               <div className="absolute left-3 top-3">
                                 <Badge variant="secondary" className="glass">
                                   {a.meta || "Social Media"}
                                 </Badge>
                               </div>
 
-                              {/* Active glow */}
+                              {/* active glow */}
                               <div
                                 className="absolute inset-0 pointer-events-none"
                                 style={{
                                   opacity: isActive ? 1 : 0,
-                                  transition: "opacity 300ms ease",
+                                  transition: "opacity 240ms ease",
                                   background:
-                                    "radial-gradient(600px circle at 20% 20%, rgba(64,255,0,0.12), transparent 55%)",
+                                    "radial-gradient(600px circle at 20% 20%, rgba(64,255,0,0.14), transparent 55%)",
                                 }}
                               />
                             </div>
@@ -308,14 +288,13 @@ useEffect(() => {
                     })}
                   </div>
 
-                  {/* right fade for nicer cut */}
                   <div className="hscroll-fade-right" />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Dialog */}
+          {/* dialog */}
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="max-w-6xl glass-strong border-white/10">
               {activeAlbum ? (
@@ -365,8 +344,7 @@ useEffect(() => {
                     <div className="glass glass-highlight rounded-3xl p-6 border border-white/10">
                       <div className="text-sm font-semibold text-white/90">Client Notes</div>
                       <p className="mt-2 text-sm text-white/70">
-                        اكتب هنا نبذة سريعة: نوع الخدمة + الهدف + ستايل التصميم.
-                        (بنخليها ديناميكية لاحقًا من الداتا)
+                        لاحقًا بنضيف لكل شركة: الهدف + أسلوب التصميم + أدوات التنفيذ.
                       </p>
 
                       <div className="mt-6 flex flex-wrap gap-2">
