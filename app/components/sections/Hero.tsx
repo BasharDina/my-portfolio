@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Reveal from "../ui/Reveal";
 import { GlowLink } from "../ui/GlowButton";
 import { Sparkles, Layout, Palette, ArrowRight } from "lucide-react";
@@ -46,14 +47,14 @@ export default function Hero() {
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <GlowLink href="/projects" variant="primary" className="gap-2 shine-btn">
-  View Projects <ArrowRight size={16} />
-</GlowLink>
+                View Projects <ArrowRight size={16} />
+              </GlowLink>
 
               <GlowLink href="/cv.pdf" download variant="secondary" className="shine-btn">
                 Download CV
               </GlowLink>
 
-              <GlowLink href="#contact" variant="secondary" className="shine-btn">
+              <GlowLink href="/#contact" variant="secondary" className="shine-btn">
                 Contact
               </GlowLink>
             </div>
@@ -91,11 +92,17 @@ export default function Hero() {
               }}
             />
 
-            <img
-              src="/hero/bashar.png"
-              alt="Bashar Emad"
-              className="block w-full select-none drop-shadow-[0_60px_140px_rgba(0,0,0,0.65)] md:mt-1"
-            />
+            {/* ✅ Image optimized */}
+            <div className="relative w-full">
+              <Image
+                src="/hero/bashar.png"
+                alt="Bashar Emad"
+                width={1200}
+                height={1200}
+                priority
+                className="h-auto w-full select-none"
+              />
+            </div>
 
             <div className="pointer-events-none mx-auto mt-2 h-7 w-[340px] rounded-full bg-black/55 blur-2xl opacity-40" />
           </div>

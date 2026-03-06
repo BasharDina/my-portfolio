@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Reveal from "../ui/Reveal";
 import { Stagger, StaggerItem } from "../ui/Stagger";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +10,6 @@ import { motion } from "framer-motion";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-// ✅ Highlights فقط (عدّلها لاحقًا حسب أفضل أعمالك)
 const PREVIEW = [
   {
     title: "Social Media Album",
@@ -44,24 +44,12 @@ export default function ProjectsPreview() {
               </p>
             </div>
 
-            <GlowLink
-              href="/projects"
-              variant="secondary"
-              className="shine-btn hidden sm:inline-flex gap-2"
-            >
+            <GlowLink href="/projects" variant="secondary" className="shine-btn hidden sm:inline-flex gap-2">
               View all projects <ArrowRight size={16} />
             </GlowLink>
           </div>
 
           <div className="relative mt-8">
-            <div
-              className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[640px] w-[640px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl opacity-60"
-              style={{
-                background:
-                  "radial-gradient(circle, rgba(64,255,0,0.14) 0%, rgba(124,58,237,0.08) 35%, rgba(0,0,0,0) 70%)",
-              }}
-            />
-
             <Stagger>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {PREVIEW.map((p) => (
@@ -73,12 +61,14 @@ export default function ProjectsPreview() {
                       className="glass glass-highlight glow-hover block overflow-hidden rounded-3xl border border-white/10"
                     >
                       <div className="relative h-44 w-full overflow-hidden bg-white/5">
-                        <img
+                        <Image
                           src={p.cover}
                           alt={p.title}
-                          className="h-full w-full object-cover transition duration-300 hover:scale-[1.03]"
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 33vw"
+                          className="object-cover transition duration-300 hover:scale-[1.03]"
                         />
-                        <div className="absolute left-3 top-3">
+                        <div className="absolute left-3 top-3 z-10">
                           <Badge variant="secondary" className="glass">
                             {p.category}
                           </Badge>
@@ -99,13 +89,8 @@ export default function ProjectsPreview() {
               </div>
             </Stagger>
 
-            {/* Mobile CTA */}
             <div className="mt-8 sm:hidden">
-              <GlowLink
-                href="/projects"
-                variant="primary"
-                className="shine-btn w-full justify-center gap-2"
-              >
+              <GlowLink href="/projects" variant="primary" className="shine-btn w-full justify-center gap-2">
                 View all projects <ArrowRight size={16} />
               </GlowLink>
             </div>
