@@ -100,22 +100,92 @@ export default function SocialPinned() {
     };
   }, [reduceMotion]);
 
-  // ===== Apply translateX + active card
-  useEffect(() => {
+  // ===== Smooth follow + soft snap
+const animRef = useRef<number | null>(null);
+const currentXRef = useRef(0);
+const targetXRef = useRef(0);
+const lastScrollRef = useRef(0);
+const lastMoveTsRef = useRef<number>(Date.now());
+
+useEffect(() => {
+  const track = trackRef.current;
+  const shell = shellRef.current;
+  if (!track || !shell) return;
+
+  const prefers = reduceMotion;
+
+  const tick = () => {
+    const maxX = track.scrollWidth - track.clientWidth;
+
+    // target from progress
+    const target = prefers ? 0 : -maxX * progress;
+    targetXRef.current = target;
+
+    // smooth follow (lerp)
+    const current = currentXRef.current;
+    const next = current + (target - current) * 0.12; // smoothing
+    currentXRef.current = next;
+
+    track.style.transform = `translate3d(${next}px, 0, 0)`;
+
+    // active index from "virtual progress"
+    const p = maxX > 0 ? clamp(Math.abs(next) / maxX) : 0;
+    const idx = Math.round(p * (albums.length - 1));
+    // setActiveIndex style
+    // (we rely on activeIndex computed from progress elsewhere, so optional)
+    // setActive(idx);
+
+    animRef.current = requestAnimationFrame(tick);
+  };
+
+  animRef.current = requestAnimationFrame(tick);
+  return () => {
+    if (animRef.current) cancelAnimationFrame(animRef.current);
+  };
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [progress, reduceMotion, albums.length]);
+
+// Soft snap: when user stops scrolling, gently bias progress to nearest card
+useEffect(() => {
+  if (reduceMotion) return;
+
+  const onScroll = () => {
+    lastMoveTsRef.current = Date.now();
+    lastScrollRef.current = window.scrollY;
+  };
+
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  const snapTimer = window.setInterval(() => {
+    const idleMs = Date.now() - lastMoveTsRef.current;
+    if (idleMs < 120) return; // still moving
+
     const track = trackRef.current;
     if (!track) return;
 
     const maxX = track.scrollWidth - track.clientWidth;
-    const x = reduceMotion ? 0 : -maxX * progress;
-    track.style.transform = `translate3d(${x}px, 0, 0)`;
+    if (maxX <= 0) return;
 
-    // active index based on progress
-    if (!albums.length) return;
-    const idx = Math.round(progress * (albums.length - 1));
-    setActive(clamp(idx / (albums.length - 1 || 1)) * (albums.length - 1));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [progress, reduceMotion]);
+    // current X => nearest card index
+    const x = Math.abs(currentXRef.current);
+    const p = clamp(x / maxX);
+    const nearest = Math.round(p * (albums.length - 1));
+    const snappedP = (albums.length <= 1) ? 0 : nearest / (albums.length - 1);
 
+    // nudge progress towards snappedP
+    // (small easing so it feels magnetic)
+    const blended = progress + (snappedP - progress) * 0.08;
+    if (Math.abs(snappedP - progress) > 0.002) {
+      setProgress(blended);
+    }
+  }, 80);
+
+  return () => {
+    window.removeEventListener("scroll", onScroll);
+    window.clearInterval(snapTimer);
+  };
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [reduceMotion, albums.length, progress]);
   // ===== Active index as integer
   const activeIndex = useMemo(() => {
     if (!albums.length) return 0;
@@ -148,6 +218,9 @@ export default function SocialPinned() {
             <div className="hscroll-sticky glass glass-highlight border border-white/10 relative">
               <div className="h-full w-full p-5 relative">
                 {/* Progress row */}
+                <div className="hidden md:block text-xs text-white/60">
+  Now viewing: <span className="text-white/85 font-semibold">{albums[activeIndex]?.title}</span>
+</div>
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div className="text-xs text-white/60 w-10">{Math.round(progress * 100)}%</div>
 
