@@ -15,12 +15,12 @@ export default function LightboxClient({ images }: { images: string[] }) {
 
   return (
     <>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-5 columns-1 gap-4 sm:columns-2 lg:columns-3">
         {images.map((src, i) => (
           <button
             key={src}
             onClick={() => setIndex(i)}
-            className="group glass glass-highlight overflow-hidden rounded-3xl border border-white/10 text-left"
+            className="group glass glass-highlight mb-4 block w-full break-inside-avoid overflow-hidden rounded-3xl border border-white/10 text-left"
           >
             <div className="relative aspect-[4/3] w-full bg-white/5">
               <Image src={src} alt={`Gallery ${i + 1}`} fill className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" />

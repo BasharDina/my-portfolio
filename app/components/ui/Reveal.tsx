@@ -2,12 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-function prefersReducedMotion() {
-  if (typeof window === "undefined") return false;
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
-
-export default function Reveal({
+export function Reveal({
   children,
   delay = 0,
   y = 18,
@@ -18,9 +13,14 @@ export default function Reveal({
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [shown, setShown] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
-    if (prefersReducedMotion()) {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const reduced = media.matches;
+    setReduceMotion(reduced);
+
+    if (reduced) {
       setShown(true);
       return;
     }
@@ -48,14 +48,16 @@ export default function Reveal({
       ref={ref}
       style={{
         opacity: shown ? 1 : 0,
-        transform: shown ? "translateY(0px)" : `translateY(${y}px)`,
-        transition: prefersReducedMotion()
-          ? "none"
+        transform: reduceMotion ? "none" : shown ? "translateY(0px)" : `translateY(${y}px)`,
+        transition: reduceMotion
+          ? undefined
           : `opacity 700ms cubic-bezier(0.22,1,0.36,1) ${delay}s, transform 700ms cubic-bezier(0.22,1,0.36,1) ${delay}s`,
-        willChange: "opacity, transform",
+        willChange: reduceMotion ? undefined : "opacity, transform",
       }}
     >
       {children}
     </div>
   );
 }
+
+export default Reveal;
