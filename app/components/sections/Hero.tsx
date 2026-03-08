@@ -138,7 +138,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={sectionRef} id="home" className="relative overflow-hidden">
+    <section ref={sectionRef} id="home" className="relative overflow-hidden pt-28 pb-20">
       {/* Cinematic background layers */}
       <div className="absolute inset-0 -z-10">
         <div

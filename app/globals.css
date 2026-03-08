@@ -5,10 +5,8 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* ===== Reduced-motion: disable smooth scroll ===== */
-@media (prefers-reduced-motion: no-preference) {
-  html { scroll-behavior: smooth; }
-}
+/* ===== Scroll behavior: let Lenis handle smooth scrolling ===== */
+html { scroll-behavior: auto; }
 
 /* ===== Global Luxury Foundation ===== */
 body {
