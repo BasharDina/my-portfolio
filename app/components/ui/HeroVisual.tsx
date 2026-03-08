@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion as m, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Layout, Palette } from "lucide-react";
@@ -52,7 +52,7 @@ export default function HeroVisual() {
         }}
       />
 
-      <motion.div
+      <m.div
         style={{
           rotateX,
           rotateY,
@@ -63,7 +63,7 @@ export default function HeroVisual() {
         className="relative"
       >
         {/* Orb */}
-        <motion.div
+        <m.div
           animate={{ y: [0, -12, 0] }}
           transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
           className="relative mx-auto h-[360px] w-[360px] sm:h-[420px] sm:w-[420px]"
@@ -90,7 +90,7 @@ export default function HeroVisual() {
 
           <div className="absolute -right-6 top-10 h-2 w-2 rounded-full bg-[#40FF00] shadow-[0_0_18px_rgba(64,255,0,0.6)]" />
           <div className="absolute left-10 bottom-8 h-1.5 w-1.5 rounded-full bg-[#40FF00]/90 shadow-[0_0_16px_rgba(64,255,0,0.45)]" />
-        </motion.div>
+        </m.div>
 
         {/* Floating cards */}
         <FloatingCard
@@ -114,7 +114,7 @@ export default function HeroVisual() {
           className="absolute left-10 bottom-6 sm:left-6"
           delay={0.35}
         />
-      </motion.div>
+      </m.div>
 
       <div className="pointer-events-none mx-auto mt-6 h-7 w-[340px] rounded-full bg-black/20 blur-2xl opacity-35 dark:bg-black/40" />
     </div>
@@ -135,7 +135,7 @@ function FloatingCard({
   delay: number;
 }) {
   return (
-    <motion.div
+    <m.div
       className={className}
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
@@ -151,6 +151,6 @@ function FloatingCard({
         </div>
         <div className="mt-1 text-xs text-muted-foreground">{desc}</div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

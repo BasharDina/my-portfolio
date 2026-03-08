@@ -3,19 +3,15 @@
 /* Tailwind v4 */
 @import "tailwindcss";
 @import "tw-animate-css";
-
-/* إذا عندك shadcn/tailwind.css وخربط، خلي السطر هذا موجود.
-   لو رجع يعمل مشاكل احذفه فقط. */
 @import "shadcn/tailwind.css";
 
-html { scroll-behavior: smooth; }
-
-/* ===== Global Luxury Foundation ===== */
-:root {
-  --noise-alpha: 0.04;
+/* ===== Reduced-motion: disable smooth scroll ===== */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
 }
 
-body{
+/* ===== Global Luxury Foundation ===== */
+body {
   background: var(--bg);
   color: var(--fg);
   overflow-x: hidden;
@@ -24,15 +20,79 @@ body{
   letter-spacing: var(--tracking-body);
   text-rendering: geometricPrecision;
   -webkit-font-smoothing: antialiased;
-  background-image:
-    radial-gradient(1100px 540px at 8% -10%, color-mix(in oklab, var(--primary) 12%, transparent), transparent 58%),
-    radial-gradient(920px 500px at 95% -15%, color-mix(in oklab, var(--secondary) 12%, transparent), transparent 60%),
-    linear-gradient(to bottom, color-mix(in oklab, var(--bg-elevated) 24%, transparent), transparent 36%),
-    linear-gradient(var(--bg), var(--bg));
 }
 
-*{
-  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease, transform 200ms ease;
+/* ===== Cinematic Animated Background ===== */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      900px 480px at var(--glow-x, 50%) calc(var(--glow-y, 50%) + var(--scroll-y, 0) * -0.08px),
+      color-mix(in oklab, var(--primary) 10%, transparent),
+      transparent 58%
+    ),
+    radial-gradient(
+      780px 420px at calc(100% - var(--glow-x, 50%)) calc(80% + var(--scroll-y, 0) * -0.04px),
+      color-mix(in oklab, var(--secondary) 10%, transparent),
+      transparent 60%
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--bg-elevated) 24%, transparent),
+      transparent 36%
+    ),
+    linear-gradient(var(--bg), var(--bg));
+  will-change: background;
+  transition: background 150ms ease;
+}
+
+/* Noise overlay */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.25'/%3E%3C/svg%3E");
+}
+
+/* Vignette */
+.vignette-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.4) 100%);
+}
+
+/* Mobile / coarse pointer: static background */
+@media (pointer: coarse) {
+  body::before {
+    --glow-x: 50% !important;
+    --glow-y: 50% !important;
+    transition: none;
+    will-change: auto;
+  }
+}
+
+/* Reduced motion: static background */
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    --glow-x: 50% !important;
+    --glow-y: 50% !important;
+    --scroll-y: 0 !important;
+    transition: none;
+    will-change: auto;
+  }
+  body::after {
+    display: none;
+  }
 }
 
 *::selection {
@@ -40,40 +100,29 @@ body{
   color: var(--fg);
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
   letter-spacing: var(--tracking-heading);
   line-height: var(--lh-heading);
   color: var(--fg);
 }
 
-h1,
-.text-display {
+h1, .text-display {
   font-size: var(--text-display);
   line-height: var(--lh-tight);
   letter-spacing: var(--tracking-display);
 }
 
-h2,
-.text-h2 {
-  font-size: var(--text-h2);
-}
+h2, .text-h2 { font-size: var(--text-h2); }
+h3, .text-h3 { font-size: var(--text-h3); }
 
-h3,
-.text-h3 {
-  font-size: var(--text-h3);
-}
+p { color: var(--fg-soft); }
+a { color: inherit; }
 
-p {
-  color: var(--fg-soft);
-}
-
-a {
-  color: inherit;
+/* ===== Focus styles for accessibility ===== */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 .section-pad {
@@ -91,39 +140,38 @@ a {
 }
 
 @media (min-width: 640px) {
-  .container-lux {
-    width: min(100% - 2rem, var(--container-max));
-  }
+  .container-lux { width: min(100% - 2rem, var(--container-max)); }
 }
 
 @media (min-width: 1024px) {
-  .container-lux {
-    width: min(100% - 2.5rem, var(--container-max));
-  }
+  .container-lux { width: min(100% - 2.5rem, var(--container-max)); }
 }
 
 /* ===== Glass helpers ===== */
-.glass{
+.glass {
   background: var(--glass);
   border: 1px solid var(--glass-border);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
 
-.glass-strong{
+.glass-strong {
   background: var(--glass-strong);
   border: 1px solid var(--glass-border);
   backdrop-filter: blur(22px);
   -webkit-backdrop-filter: blur(22px);
 }
 
-.glass-highlight{
+.glass-highlight {
   box-shadow:
     0 0 0 1px rgba(255,255,255,.07) inset,
     0 18px 70px rgba(0,0,0,.35);
 }
 
-.glow-hover:hover{
+.glow-hover {
+  transition: box-shadow 300ms ease, transform 300ms ease;
+}
+.glow-hover:hover {
   box-shadow:
     0 0 0 1px color-mix(in oklab, var(--fg) 18%, transparent) inset,
     var(--shadow-glow);
@@ -131,12 +179,8 @@ a {
 }
 
 /* scrollbar polish */
-::-webkit-scrollbar {
-  width: 10px;
-}
-::-webkit-scrollbar-track {
-  background: color-mix(in oklab, var(--bg) 88%, black 12%);
-}
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: color-mix(in oklab, var(--bg) 88%, black 12%); }
 ::-webkit-scrollbar-thumb {
   background: color-mix(in oklab, var(--muted) 48%, transparent);
   border-radius: 999px;
@@ -147,66 +191,13 @@ a {
   background: color-mix(in oklab, var(--primary) 45%, var(--muted));
 }
 
-/* ===== Horizontal pinned scroll ===== */
-.hscroll-shell{ position: relative; }
-
-.hscroll-sticky{
-  position: sticky;
-  top: 88px;
-  height: calc(100vh - 88px);
-  overflow: hidden;
-  border-radius: 28px;
-}
-
-.hscroll-track{
-  display: flex;
-  gap: var(--hgap);
-  height: 100%;
-  align-items: stretch;
-  will-change: transform;
-  transform: translate3d(0,0,0);
-}
-
-.hscroll-card{
-  flex: 0 0 auto;
-  width: clamp(420px, 42vw, 560px);
-  height: 100%;
-}
-
-.hscroll-card-inner{
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.hscroll-media{
-  position: relative;
-  height: 58%;
-  min-height: 240px;
-  overflow: hidden;
-}
-
-.hscroll-content{ height: 42%; }
-
-.hscroll-fade-right{
-  pointer-events: none;
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 120px;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(2,6,23,.92));
-}
-
-/* ===== Global Cursor ===== */
-.cursor-dot,
-.cursor-ring { opacity: 0; }
+/* ===== Global Cursor (experience page only) ===== */
+.cursor-dot, .cursor-ring { opacity: 0; }
 
 html.has-cursor .cursor-dot,
 html.has-cursor .cursor-ring { opacity: 1; }
 
-.cursor-dot,
-.cursor-ring {
+.cursor-dot, .cursor-ring {
   position: fixed;
   left: 0;
   top: 0;
@@ -257,7 +248,6 @@ html.has-cursor .cursor-ring { opacity: 1; }
   pointer-events: none;
 }
 
-/* hover on interactive */
 .cursor-ring.cursor--hover {
   width: 58px;
   height: 58px;
@@ -267,7 +257,6 @@ html.has-cursor .cursor-ring { opacity: 1; }
   background: rgba(64, 255, 0, 0.06);
 }
 
-/* click */
 .cursor-ring.cursor--down {
   width: 34px;
   height: 34px;
@@ -276,28 +265,16 @@ html.has-cursor .cursor-ring { opacity: 1; }
   border-color: rgba(64, 255, 0, 0.5);
 }
 
-/* Hide custom cursor on touch devices */
 @media (pointer: coarse) {
-  .cursor-dot,
-  .cursor-ring {
-    display: none !important;
-  }
+  .cursor-dot, .cursor-ring { display: none !important; }
 }
 
-/* Hide custom cursor for reduced motion users */
 @media (prefers-reduced-motion: reduce) {
-  .cursor-dot,
-  .cursor-ring {
-    display: none !important;
-  }
-}
-/* Hide default cursor when custom cursor is active */
-html.has-cursor,
-html.has-cursor body {
-  cursor: none;
+  .cursor-dot, .cursor-ring { display: none !important; }
 }
 
-/* interactive hover targets */
+html.has-cursor, html.has-cursor body { cursor: none; }
+
 html.has-cursor :is(a, button, [role="button"], [role="tab"], [data-cursor="link"], input, textarea, select, .card, [class*="card"], [data-slot="card"], [data-radix-collection-item]) {
   cursor: none !important;
 }
@@ -323,7 +300,20 @@ html.has-cursor :is(a, button, [role="button"], [role="tab"], [data-cursor="link
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .page-preloader__dot {
-    animation: none !important;
-  }
+  .page-preloader__dot { animation: none !important; }
+}
+
+/* ===== Gradient text helper ===== */
+.gradient-text {
+  background: linear-gradient(135deg, var(--fg) 0%, var(--fg-soft) 50%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== Section divider ===== */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+  margin: var(--space-section) 0;
 }

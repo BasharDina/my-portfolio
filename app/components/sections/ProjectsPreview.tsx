@@ -1,106 +1,105 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import Reveal from "../ui/Reveal";
 import { Stagger, StaggerItem } from "../ui/Stagger";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
-import { GlowLink } from "../ui/GlowButton";
-import { m } from "framer-motion";
-
-const ease = [0.22, 1, 0.36, 1] as const;
-
-const PREVIEW = [
-  {
-    title: "Social Media Album",
-    desc: "Campaign-ready social layouts with strong hierarchy and reusable templates.",
-    category: "Social",
-    cover: "/projects/p1.png",
-  },
-  {
-    title: "Branding Identity",
-    desc: "A scalable identity system with guidelines and premium applications.",
-    category: "Branding",
-    cover: "/projects/p2.png",
-  },
-  {
-    title: "Packaging Design",
-    desc: "Premium packaging layout + mockups and production-ready exports.",
-    category: "Packaging",
-    cover: "/projects/p3.png",
-  },
-];
+import { CASE_STUDIES } from "@/app/data/case-studies";
 
 export default function ProjectsPreview() {
+  const featured = CASE_STUDIES.slice(0, 3);
+
   return (
     <section id="projects" className="py-20">
       <Reveal>
         <div className="mx-auto max-w-[1320px] px-3 sm:px-4 lg:px-5">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
-              <p className="mt-2 text-sm text-white/70">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#40FF00]">
+                Selected Work
+              </p>
+              <h2 className="mt-3 text-3xl font-bold tracking-tight">Featured Projects</h2>
+              <p className="mt-2 max-w-lg text-sm text-white/70">
                 Highlights only — open the full portfolio for case studies and galleries.
               </p>
             </div>
 
-            <GlowLink
+            <Link
               href="/projects"
-              variant="secondary"
-              className="shine-btn hidden sm:inline-flex gap-2"
+              className="hidden sm:inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-md transition hover:border-[#40FF00]/40 hover:shadow-[0_0_18px_rgba(64,255,0,0.12)]"
             >
               View all projects <ArrowRight size={16} />
-            </GlowLink>
+            </Link>
           </div>
 
           <div className="relative mt-8">
             <Stagger>
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {PREVIEW.map((p) => (
-                  <StaggerItem key={p.title}>
-                    <m.a
-                      href="/projects"
-                      whileHover={{ y: -6 }}
-                      transition={{ duration: 0.25, ease }}
-                      className="glass glass-highlight glow-hover block overflow-hidden rounded-3xl border border-white/10"
+                {featured.map((p) => (
+                  <StaggerItem key={p.slug}>
+                    <Link
+                      href={`/projects/${p.slug}`}
+                      className="group glass glass-highlight glow-hover block overflow-hidden rounded-3xl border border-white/10"
                     >
-                      <div className="relative h-44 w-full overflow-hidden bg-white/5">
+                      <div className="relative h-48 w-full overflow-hidden bg-white/5">
                         <Image
                           src={p.cover}
                           alt={p.title}
                           fill
                           sizes="(max-width: 1024px) 100vw, 33vw"
-                          className="object-cover transition duration-300 hover:scale-[1.03]"
+                          className="object-cover transition duration-500 group-hover:scale-[1.04]"
                         />
-                        <div className="absolute left-3 top-3 z-10">
-                          <Badge variant="secondary" className="glass">
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                        <div className="absolute left-3 top-3 z-10 flex gap-2">
+                          <Badge variant="secondary" className="glass text-[11px]">
                             {p.category}
                           </Badge>
+                          {p.year && (
+                            <Badge variant="secondary" className="glass text-[11px]">
+                              {p.year}
+                            </Badge>
+                          )}
                         </div>
                       </div>
 
                       <div className="p-6">
-                        <div className="text-base font-bold text-white">{p.title}</div>
-                        <p className="mt-2 text-sm text-white/70">{p.desc}</p>
+                        <h3 className="text-base font-bold text-white">{p.title}</h3>
+                        <p className="mt-2 text-sm leading-relaxed text-white/70 line-clamp-2">
+                          {p.subtitle}
+                        </p>
 
-                        <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#40FF00]">
-                          View case study <ArrowRight size={16} />
+                        {p.tags && p.tags.length > 0 && (
+                          <div className="mt-4 flex flex-wrap gap-1.5">
+                            {p.tags.slice(0, 3).map((tag) => (
+                              <span
+                                key={tag}
+                                className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] text-white/65"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#40FF00] transition-transform duration-200 group-hover:translate-x-1">
+                          View case study <ArrowRight size={14} />
                         </div>
                       </div>
-                    </m.a>
+                    </Link>
                   </StaggerItem>
                 ))}
               </div>
             </Stagger>
 
             <div className="mt-8 sm:hidden">
-              <GlowLink
+              <Link
                 href="/projects"
-                variant="primary"
-                className="shine-btn w-full justify-center gap-2"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#40FF00] px-5 py-3 text-sm font-bold text-black transition hover:brightness-110 active:scale-[0.98]"
               >
                 View all projects <ArrowRight size={16} />
-              </GlowLink>
+              </Link>
             </div>
           </div>
         </div>

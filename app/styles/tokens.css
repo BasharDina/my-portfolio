@@ -26,6 +26,7 @@
   --shadow-soft: 0 12px 30px rgba(0, 0, 0, 0.32);
   --shadow-medium: 0 20px 80px rgba(0, 0, 0, 0.45);
   --shadow-glow: 0 30px 120px rgba(100, 255, 47, 0.15);
+  --shadow-glow-sm: 0 0 30px rgba(100, 255, 47, 0.12);
 
   /* ===== Radius ===== */
   --radius-xs: 10px;
@@ -58,4 +59,9 @@
 
   --container-max: 1320px;
   --hgap: 22px;
+
+  /* ===== Animated Background ===== */
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --scroll-y: 0;
 }

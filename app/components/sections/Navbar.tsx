@@ -1,30 +1,42 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-type NavItem = { id: string; label: string };
+type NavItem = { href: string; label: string };
 
 export default function Navbar() {
+  const pathname = usePathname();
+
   const navItems: NavItem[] = useMemo(
     () => [
-      { id: "home", label: "Home" },
-      { id: "about", label: "About" },
-      { id: "skills", label: "Services" },
-      { id: "projects", label: "Projects" },
-      { id: "contact", label: "Contact" },
+      { href: "/", label: "Home" },
+      { href: "/projects", label: "Projects" },
+      { href: "/experience", label: "Experience" },
+      { href: "/#contact", label: "Contact" },
     ],
     []
   );
 
-  const [activeId, setActiveId] = useState<string>("home");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
 
-  function updateIndicator(id: string) {
-    const el = linkRefs.current[id];
+  function getActiveHref() {
+    if (pathname === "/") return "/";
+    if (pathname.startsWith("/projects")) return "/projects";
+    if (pathname.startsWith("/experience")) return "/experience";
+    return "/";
+  }
+
+  const activeHref = getActiveHref();
+
+  function updateIndicator(href: string) {
+    const el = linkRefs.current[href];
     const container = containerRef.current;
     if (!el || !container) return;
 
@@ -34,142 +46,116 @@ export default function Navbar() {
     setIndicator({ left: elRect.left - cRect.left, width: elRect.width });
   }
 
-  function scrollToId(id: string) {
-    setMobileOpen(false);
-
-    if (id === "home") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-
-    const el = document.getElementById(id);
-    if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY - 90;
-    window.scrollTo({ top, behavior: "smooth" });
-  }
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
-    const sections = navItems
-      .map((n) => (n.id === "home" ? null : document.getElementById(n.id)))
-      .filter(Boolean) as HTMLElement[];
-
-    const obs = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => (b.intersectionRatio ?? 0) - (a.intersectionRatio ?? 0))[0];
-
-        if (visible?.target?.id) setActiveId(visible.target.id);
-      },
-      { rootMargin: "-25% 0px -60% 0px", threshold: [0.1, 0.2, 0.35, 0.5] }
-    );
-
-    sections.forEach((s) => obs.observe(s));
-
-    const onScroll = () => {
-      if (window.scrollY < 80) setActiveId("home");
-    };
-    window.addEventListener("scroll", onScroll);
-
-    return () => {
-      obs.disconnect();
-      window.removeEventListener("scroll", onScroll);
-    };
-  }, [navItems]);
-
-  useEffect(() => {
-    updateIndicator(activeId);
-    const onResize = () => updateIndicator(activeId);
+    updateIndicator(activeHref);
+    const onResize = () => updateIndicator(activeHref);
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [activeId]);
+  }, [activeHref]);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   return (
     <header className="sticky top-0 z-50">
+      {/* Top accent line */}
       <div className="h-[2px] w-full">
         <div
           className="h-full w-full opacity-90"
           style={{
-            background:
-              "linear-gradient(90deg, transparent, rgba(64,255,0,0.9), transparent)",
+            background: "linear-gradient(90deg, transparent, rgba(64,255,0,0.9), transparent)",
           }}
         />
       </div>
 
-      <div className="border-b bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/55">
-<div className="mx-auto flex max-w-[1320px] items-center justify-between px-3 py-4 sm:px-4 lg:px-5">
-                  <button onClick={() => scrollToId("home")} className="flex items-center gap-2 font-bold">
+      <div
+        className={`border-b transition-all duration-300 ${
+          scrolled
+            ? "border-white/10 bg-[#050812]/80 backdrop-blur-xl supports-[backdrop-filter]:bg-[#050812]/60"
+            : "border-transparent bg-transparent"
+        }`}
+      >
+        <div className="mx-auto flex max-w-[1320px] items-center justify-between px-3 py-4 sm:px-4 lg:px-5">
+          <Link href="/" className="flex items-center gap-2 font-bold">
             <span className="text-lg">
-              <span className="text-foreground">My</span>
-              <span className="text-primary">Website</span>
+              <span className="text-foreground">Bashar</span>
+              <span className="text-primary">.</span>
             </span>
             <span className="relative inline-flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-40" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
             </span>
-          </button>
+          </Link>
 
+          {/* Desktop nav */}
           <div className="hidden items-center gap-4 md:flex">
             <div
               ref={containerRef}
-              onMouseLeave={() => updateIndicator(activeId)}
-              className="relative rounded-full border bg-card px-2 py-1"
+              onMouseLeave={() => updateIndicator(activeHref)}
+              className="relative rounded-full border border-white/10 bg-white/[0.03] px-2 py-1 backdrop-blur-md"
             >
               <span
                 className="pointer-events-none absolute top-1 bottom-1 rounded-full transition-all duration-300 ease-out"
                 style={{
                   left: indicator.left,
                   width: indicator.width,
-                  background:
-                    "linear-gradient(90deg, rgba(64,255,0,0.22), rgba(124,58,237,0.10))",
+                  background: "linear-gradient(90deg, rgba(64,255,0,0.22), rgba(124,58,237,0.10))",
                   boxShadow: "0 0 26px rgba(64,255,0,0.18)",
                 }}
               />
 
-              <nav className="relative flex items-center gap-1 text-sm">
+              <nav className="relative flex items-center gap-1 text-sm" aria-label="Main navigation">
                 {navItems.map((item) => (
-                  <a
-                    key={item.id}
+                  <Link
+                    key={item.href}
                     ref={(el) => {
-                      linkRefs.current[item.id] = el;
+                      linkRefs.current[item.href] = el;
                     }}
-                    href={`#${item.id}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      scrollToId(item.id);
-                    }}
-                    onMouseEnter={() => updateIndicator(item.id)}
+                    href={item.href}
+                    onMouseEnter={() => updateIndicator(item.href)}
                     className={[
                       "relative rounded-full px-4 py-2 transition-colors duration-200",
-                      item.id === activeId
+                      item.href === activeHref
                         ? "text-foreground"
                         : "text-muted-foreground hover:text-foreground",
                     ].join(" ")}
                   >
                     {item.label}
-                  </a>
+                  </Link>
                 ))}
               </nav>
             </div>
 
-            <button
-              onClick={() => scrollToId("contact")}
-              className="rounded-xl border bg-card px-4 py-2 text-sm font-semibold text-foreground transition hover:border-primary/60 hover:shadow-[0_0_18px_rgba(64,255,0,0.18)] active:scale-[0.98]"
+            <Link
+              href="/#contact"
+              className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-foreground backdrop-blur-md transition hover:border-primary/60 hover:shadow-[0_0_18px_rgba(64,255,0,0.18)] active:scale-[0.98]"
             >
               Hire me
-            </button>
+            </Link>
           </div>
 
+          {/* Mobile toggle */}
           <div className="flex items-center gap-3 md:hidden">
             <button
               onClick={() => setMobileOpen((s) => !s)}
-              className="rounded-xl border bg-card px-3 py-2 text-sm text-foreground active:scale-[0.98]"
+              className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-foreground active:scale-[0.98]"
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
             >
               {mobileOpen ? "✕" : "☰"}
             </button>
           </div>
         </div>
 
+        {/* Mobile menu */}
         <div
           className={[
             "md:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-out",
@@ -177,29 +163,31 @@ export default function Navbar() {
           ].join(" ")}
         >
           <div className="mx-auto max-w-6xl px-6 pb-5">
-            <div className="rounded-2xl border bg-card p-3">
-              <nav className="flex flex-col gap-1">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 backdrop-blur-xl">
+              <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
                 {navItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => scrollToId(item.id)}
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
                     className={[
                       "text-left rounded-xl px-4 py-3 text-sm font-semibold transition",
-                      item.id === activeId
+                      item.href === activeHref
                         ? "bg-primary/15 text-foreground shadow-[0_0_18px_rgba(64,255,0,0.14)]"
                         : "text-muted-foreground hover:bg-primary/10 hover:text-foreground",
                     ].join(" ")}
                   >
                     {item.label}
-                  </button>
+                  </Link>
                 ))}
 
-                <button
-                  onClick={() => scrollToId("contact")}
-                  className="mt-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition hover:brightness-110 active:scale-[0.98]"
+                <Link
+                  href="/#contact"
+                  onClick={() => setMobileOpen(false)}
+                  className="mt-2 rounded-xl bg-primary px-4 py-3 text-center text-sm font-bold text-primary-foreground transition hover:brightness-110 active:scale-[0.98]"
                 >
                   Hire me
-                </button>
+                </Link>
               </nav>
             </div>
           </div>

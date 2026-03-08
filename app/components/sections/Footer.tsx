@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowUp, Mail, Linkedin, Globe } from "lucide-react";
 
 export default function Footer() {
@@ -18,14 +19,14 @@ export default function Footer() {
                 Bashar <span className="text-[#40FF00]">Emad</span>
               </div>
               <div className="mt-2 max-w-sm text-sm text-white/65">
-                Premium visuals • UI/UX • Branding — built with a Web3/agency-level finish.
+                Premium visuals • UI/UX • Branding — built with a cinematic, agency-level finish.
               </div>
 
               {/* Social */}
               <div className="mt-5 flex flex-wrap gap-3">
                 <a
-                  href="mailto:your.email@example.com"
-                  className="shine-btn glass glass-hover glow-hover inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm text-white/80"
+                  href="mailto:basharabushaban1999@gmail.com"
+                  className="glass glow-hover inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm text-white/80"
                 >
                   <Mail className="h-4 w-4 text-[#40FF00]" />
                   Email
@@ -35,7 +36,7 @@ export default function Footer() {
                   href="#"
                   target="_blank"
                   rel="noreferrer"
-                  className="shine-btn glass glass-hover glow-hover inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm text-white/80"
+                  className="glass glow-hover inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm text-white/80"
                 >
                   <Linkedin className="h-4 w-4 text-[#40FF00]" />
                   LinkedIn
@@ -45,7 +46,7 @@ export default function Footer() {
                   href="#"
                   target="_blank"
                   rel="noreferrer"
-                  className="shine-btn glass glass-hover glow-hover inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm text-white/80"
+                  className="glass glow-hover inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-sm text-white/80"
                 >
                   <Globe className="h-4 w-4 text-[#40FF00]" />
                   Upwork
@@ -55,25 +56,14 @@ export default function Footer() {
 
             {/* Links */}
             <div className="grid gap-2 text-sm text-white/70 sm:text-right">
-              <a className="hover:text-white" href="#home">
-                Home
-              </a>
-              <a className="hover:text-white" href="#about">
-                Testimonials
-              </a>
-              <a className="hover:text-white" href="#skills">
-                Services
-              </a>
-              <a className="hover:text-white" href="#projects">
-                Projects
-              </a>
-              <a className="hover:text-white" href="#contact">
-                Contact
-              </a>
+              <Link className="hover:text-white transition-colors" href="/">Home</Link>
+              <Link className="hover:text-white transition-colors" href="/projects">Projects</Link>
+              <Link className="hover:text-white transition-colors" href="/experience">Experience</Link>
+              <Link className="hover:text-white transition-colors" href="/#contact">Contact</Link>
 
               <button
                 onClick={backToTop}
-                className="shine-btn glass glass-hover glow-hover mt-3 inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold text-white/85"
+                className="glass glow-hover mt-3 inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold text-white/85"
               >
                 Back to top <ArrowUp className="h-4 w-4 text-[#40FF00]" />
               </button>
