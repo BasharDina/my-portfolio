@@ -2,6 +2,7 @@
 
 import { Layout, Palette, Sparkles, Check, ArrowUpRight } from "lucide-react";
 import Reveal from "../ui/Reveal";
+import { Stagger, StaggerItem } from "../ui/Stagger";
 
 const SERVICES = [
   {
@@ -37,53 +38,54 @@ export default function Services() {
             </p>
           </div>
 
-          <div className="grid gap-5 sm:gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {SERVICES.map((service, index) => {
-              const Icon = service.icon;
+          <Stagger stagger={0.12}>
+            <div className="grid gap-5 sm:gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {SERVICES.map((service) => {
+                const Icon = service.icon;
 
-              return (
-                <article
-                  key={service.title}
-                  className="group glass glass-hover glass-highlight glow-hover relative overflow-hidden rounded-3xl border border-white/10 p-6 sm:p-7 transition-transform duration-300 hover:-translate-y-1"
-                  style={{ animationDelay: `${index * 80}ms` }}
-                >
-                  <div
-                    className="pointer-events-none absolute -top-16 -right-14 h-44 w-44 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-90"
-                    style={{ background: "radial-gradient(circle, rgba(64,255,0,0.25), rgba(124,58,237,0.18), transparent 65%)" }}
-                  />
+                return (
+                  <StaggerItem key={service.title}>
+                    <article className="group glass glass-highlight glow-hover relative overflow-hidden rounded-3xl border border-white/10 p-6 sm:p-7">
+                      {/* Hover glow */}
+                      <div
+                        className="pointer-events-none absolute -top-16 -right-14 h-44 w-44 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-90"
+                        style={{ background: "radial-gradient(circle, rgba(64,255,0,0.25), rgba(124,58,237,0.18), transparent 65%)" }}
+                      />
 
-                  <div className="relative z-10 flex items-center justify-between">
-                    <div className="glass-strong rounded-2xl p-2.5">
-                      <Icon className="h-5 w-5 text-[#40FF00]" />
-                    </div>
-                    <ArrowUpRight className="h-4 w-4 text-white/50 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#40FF00]" />
-                  </div>
+                      <div className="relative z-10 flex items-center justify-between">
+                        <div className="glass-strong rounded-2xl p-2.5">
+                          <Icon className="h-5 w-5 text-[#40FF00]" />
+                        </div>
+                        <ArrowUpRight className="h-4 w-4 text-white/50 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#40FF00]" />
+                      </div>
 
-                  <h3 className="relative z-10 mt-5 text-xl font-semibold">{service.title}</h3>
+                      <h3 className="relative z-10 mt-5 text-xl font-semibold">{service.title}</h3>
 
-                  <ul className="relative z-10 mt-4 space-y-2.5">
-                    {service.bullets.map((item) => (
-                      <li key={item} className="flex items-start gap-2.5 text-sm text-white/75">
-                        <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#40FF00]/15">
-                          <Check className="h-3.5 w-3.5 text-[#40FF00]" />
-                        </span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+                      <ul className="relative z-10 mt-4 space-y-2.5">
+                        {service.bullets.map((item) => (
+                          <li key={item} className="flex items-start gap-2.5 text-sm text-white/75">
+                            <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#40FF00]/15">
+                              <Check className="h-3.5 w-3.5 text-[#40FF00]" />
+                            </span>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
 
-                  <div className="relative z-10 mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                    <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/55">Deliverables</p>
-                    <ul className="mt-2.5 space-y-1.5 text-sm text-white/75">
-                      {service.deliverables.map((item) => (
-                        <li key={item}>• {item}</li>
-                      ))}
-                    </ul>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+                      <div className="relative z-10 mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/55">Deliverables</p>
+                        <ul className="mt-2.5 space-y-1.5 text-sm text-white/75">
+                          {service.deliverables.map((item) => (
+                            <li key={item}>• {item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </article>
+                  </StaggerItem>
+                );
+              })}
+            </div>
+          </Stagger>
         </div>
       </Reveal>
     </section>
