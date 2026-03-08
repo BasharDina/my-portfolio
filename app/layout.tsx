@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import SmoothScroll from "./components/ui/SmoothScroll";
 import MotionProvider from "./components/ui/MotionProvider";
+import Cursor from "./components/experience/Cursor";
+import PageTransition from "./components/ui/PageTransition";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -36,12 +38,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+<html lang="en" className="dark">
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <MotionProvider>
           <SmoothScroll />
+          <Cursor />
           <TooltipProvider delayDuration={150}>
-            {children}
+            <PageTransition>{children}</PageTransition>
             <Toaster richColors position="top-right" />
           </TooltipProvider>
         </MotionProvider>
