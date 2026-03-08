@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import Cursor from "./Cursor";
-import ExperienceCanvas from "./ExperienceCanvas";
 import Preloader from "./Preloader";
 import { setupLenisGsap } from "./gsap-lenis";
 import { setScrollState, useScrollState } from "./scroll-state";
@@ -13,9 +13,16 @@ import Intro from "./sections/Intro";
 import Showcase from "./sections/Showcase";
 import FinalCTA from "./sections/FinalCTA";
 
+// Lazy-load the heavy WebGL canvas
+const ExperienceCanvas = dynamic(() => import("./ExperienceCanvas"), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 bg-[#030505]" />
+  ),
+});
+
 function useReducedMotion() {
   const [reduced, setReduced] = useState(false);
-
   useEffect(() => {
     if (typeof window === "undefined") return;
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -24,9 +31,10 @@ function useReducedMotion() {
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
   }, []);
-
   return reduced;
 }
+
+const SCENE_LABELS = ["Intro", "Showcase", "Contact"] as const;
 
 export default function ExperienceRoot() {
   const reducedMotion = useReducedMotion();
@@ -137,13 +145,42 @@ export default function ExperienceRoot() {
       ref={storyRef}
       className={`relative bg-black text-white ${reducedMotion ? "min-h-screen" : "h-[300vh]"}`}
     >
+      {/* Progress bar */}
       <div className="fixed left-0 top-0 z-[60] h-[2px] w-full bg-white/10">
         <div
-          className="h-full bg-emerald-400 transition-[width] duration-100"
+          className="h-full bg-[#40FF00] transition-[width] duration-100"
           style={{ width: `${scrollState.progress * 100}%` }}
         />
       </div>
+
+      {/* Scene indicator */}
+      {!reducedMotion && (
+        <div className="fixed right-6 top-1/2 z-[60] -translate-y-1/2 flex flex-col items-end gap-3">
+          {SCENE_LABELS.map((label, i) => (
+            <div key={label} className="flex items-center gap-2">
+              <span
+                className={`text-[10px] uppercase tracking-[0.15em] transition-all duration-300 ${
+                  scrollState.activeScene === i ? "text-[#40FF00] opacity-100" : "text-white/40 opacity-60"
+                }`}
+              >
+                {label}
+              </span>
+              <div
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  scrollState.activeScene === i
+                    ? "w-6 bg-[#40FF00]"
+                    : scrollState.activeScene > i
+                    ? "w-3 bg-white/30"
+                    : "w-3 bg-white/15"
+                }`}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
       <Preloader />
+
       <div className={reducedMotion ? "relative min-h-screen" : "sticky top-0 h-screen overflow-hidden"}>
         <ExperienceCanvas />
         <div className="absolute inset-0 z-20">
@@ -152,6 +189,8 @@ export default function ExperienceRoot() {
           <FinalCTA reducedMotion={reducedMotion} />
         </div>
       </div>
+
+      {/* Cursor only on /experience */}
       <Cursor />
     </div>
   );
