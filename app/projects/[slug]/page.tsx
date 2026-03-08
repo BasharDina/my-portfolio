@@ -8,12 +8,11 @@ export async function generateStaticParams() {
   return CASE_STUDIES.map((p) => ({ slug: p.slug }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
-  const p = getCaseStudy(params.slug);
+export async function generateMetadata(
+  props: { params: Promise<{ slug: string }> }
+): Promise<Metadata> {
+  const { slug } = await props.params;
+  const p = getCaseStudy(slug);
   if (!p) return { title: "Project not found" };
 
   return {
@@ -27,17 +26,22 @@ export async function generateMetadata({
   };
 }
 
-export default function ProjectCaseStudyPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  const p = getCaseStudy(params.slug);
-  const currentIndex = CASE_STUDIES.findIndex((item) => item.slug === params.slug);
+export default async function ProjectCaseStudyPage(
+  props: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await props.params;
+  const p = getCaseStudy(slug);
+  const currentIndex = CASE_STUDIES.findIndex((item) => item.slug === slug);
   const prevProject = currentIndex > 0 ? CASE_STUDIES[currentIndex - 1] : null;
-  const nextProject = currentIndex >= 0 && currentIndex < CASE_STUDIES.length - 1 ? CASE_STUDIES[currentIndex + 1] : null;
+  const nextProject =
+    currentIndex >= 0 && currentIndex < CASE_STUDIES.length - 1
+      ? CASE_STUDIES[currentIndex + 1]
+      : null;
   const relatedProjects = CASE_STUDIES.filter(
-    (item) => item.slug !== params.slug && (item.category === p?.category || item.tags?.some((tag) => p?.tags?.includes(tag)))
+    (item) =>
+      item.slug !== slug &&
+      (item.category === p?.category ||
+        item.tags?.some((tag) => p?.tags?.includes(tag)))
   ).slice(0, 3);
 
   if (!p) {
@@ -53,23 +57,34 @@ export default function ProjectCaseStudyPage({
 
   return (
     <main className="mx-auto max-w-[1320px] px-4 py-10 text-white md:py-12">
+      {/* Breadcrumbs */}
       <div className="glass glass-highlight rounded-2xl border border-white/10 px-4 py-3 md:px-5">
-        <nav className="flex flex-wrap items-center gap-2 text-xs text-white/60 sm:text-sm">
-          <Link href="/" className="hover:text-white">Home</Link>
-          <span>/</span>
-          <Link href="/projects" className="hover:text-white">Projects</Link>
-          <span>/</span>
+        <nav
+          className="flex flex-wrap items-center gap-2 text-xs text-white/60 sm:text-sm"
+          aria-label="Breadcrumb"
+        >
+          <Link href="/" className="hover:text-white transition-colors">
+            Home
+          </Link>
+          <span className="text-white/30">/</span>
+          <Link href="/projects" className="hover:text-white transition-colors">
+            Projects
+          </Link>
+          <span className="text-white/30">/</span>
           <span className="text-white">{p.title}</span>
         </nav>
       </div>
 
       <div className="mt-5 flex items-center justify-between gap-4">
-        <Link href="/projects" className="text-sm text-white/70 hover:text-white">
+        <Link
+          href="/projects"
+          className="text-sm text-white/70 hover:text-white transition-colors"
+        >
           ← Back to projects
         </Link>
         <Link
           href="/#contact"
-          className="text-sm font-semibold text-[#40FF00] hover:opacity-90"
+          className="text-sm font-semibold text-[#40FF00] hover:opacity-90 transition-opacity"
         >
           Hire me →
         </Link>
@@ -79,7 +94,7 @@ export default function ProjectCaseStudyPage({
       <section className="mt-6 grid gap-7 lg:grid-cols-[1.12fr_.88fr]">
         <div className="glass glass-highlight rounded-3xl border border-white/10 p-7">
           <div className="flex flex-wrap items-center gap-2 text-xs text-white/70">
-            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
+            <span className="rounded-full border border-[#40FF00]/20 bg-[#40FF00]/10 px-3 py-1 text-[#40FF00]">
               {p.category}
             </span>
             {p.year ? (
@@ -102,38 +117,53 @@ export default function ProjectCaseStudyPage({
           </p>
 
           {p.tools?.length ? (
-            <div className="mt-5 flex flex-wrap gap-2">
-              {p.tools.map((t) => (
-                <span
-                  key={t}
-                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/80"
-                >
-                  {t}
-                </span>
-              ))}
+            <div className="mt-5">
+              <p className="text-[11px] uppercase tracking-[0.15em] text-white/50 mb-2">
+                Tools Used
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {p.tools.map((t) => (
+                  <span
+                    key={t}
+                    className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/80"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
             </div>
           ) : null}
         </div>
 
         {/* Cover */}
-        <div className="glass glass-highlight rounded-3xl border border-white/10 overflow-hidden">
+        <div className="glass glass-highlight overflow-hidden rounded-3xl border border-white/10">
           <div className="relative aspect-[16/10] w-full">
-            <Image src={p.cover} alt={p.title} fill className="object-cover" priority />
+            <Image
+              src={p.cover}
+              alt={p.title}
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover"
+              priority
+            />
           </div>
         </div>
       </section>
 
-      {/* Sections */}
+      {/* Case Study Sections */}
       <section className="mt-10 grid gap-5 lg:grid-cols-3">
-        {p.sections.map((s) => (
+        {p.sections.map((s, i) => (
           <div
             key={s.heading}
             className="glass glass-highlight rounded-3xl border border-white/10 p-6"
           >
-            <h3 className="text-lg font-bold tracking-tight">{s.heading}</h3>
-            <p className="mt-3 text-sm leading-relaxed text-white/72">
-              {s.body}
-            </p>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#40FF00]/15 text-xs font-bold text-[#40FF00]">
+                {i + 1}
+              </span>
+              <h3 className="text-lg font-bold tracking-tight">{s.heading}</h3>
+            </div>
+            <p className="text-sm leading-relaxed text-white/72">{s.body}</p>
           </div>
         ))}
       </section>
@@ -142,36 +172,54 @@ export default function ProjectCaseStudyPage({
       <section className="mt-11">
         <div className="flex items-end justify-between gap-4">
           <h2 className="text-2xl font-bold tracking-tight">Gallery</h2>
-          <p className="text-sm text-white/60">Click any image to preview in lightbox.</p>
+          <p className="text-sm text-white/60">
+            Click any image to preview in lightbox
+          </p>
         </div>
 
         <LightboxClient images={p.gallery} />
       </section>
 
+      {/* Prev / Next */}
       <section className="mt-10 grid gap-5 lg:grid-cols-2">
         <div className="glass glass-highlight rounded-3xl border border-white/10 p-5 md:p-6">
-          <div className="text-xs uppercase tracking-[0.18em] text-white/55">Previous</div>
+          <div className="text-xs uppercase tracking-[0.18em] text-white/55">
+            Previous
+          </div>
           {prevProject ? (
-            <Link href={`/projects/${prevProject.slug}`} className="mt-2 inline-block text-lg font-bold tracking-tight hover:text-[#40FF00]">
+            <Link
+              href={`/projects/${prevProject.slug}`}
+              className="mt-2 inline-block text-lg font-bold tracking-tight hover:text-[#40FF00] transition-colors"
+            >
               ← {prevProject.title}
             </Link>
           ) : (
-            <p className="mt-2 text-sm text-white/65">You are viewing the first project.</p>
+            <p className="mt-2 text-sm text-white/65">
+              You are viewing the first project.
+            </p>
           )}
         </div>
 
         <div className="glass glass-highlight rounded-3xl border border-white/10 p-5 md:p-6 text-left lg:text-right">
-          <div className="text-xs uppercase tracking-[0.18em] text-white/55">Next</div>
+          <div className="text-xs uppercase tracking-[0.18em] text-white/55">
+            Next
+          </div>
           {nextProject ? (
-            <Link href={`/projects/${nextProject.slug}`} className="mt-2 inline-block text-lg font-bold tracking-tight hover:text-[#40FF00]">
+            <Link
+              href={`/projects/${nextProject.slug}`}
+              className="mt-2 inline-block text-lg font-bold tracking-tight hover:text-[#40FF00] transition-colors"
+            >
               {nextProject.title} →
             </Link>
           ) : (
-            <p className="mt-2 text-sm text-white/65">You are viewing the latest project.</p>
+            <p className="mt-2 text-sm text-white/65">
+              You are viewing the latest project.
+            </p>
           )}
         </div>
       </section>
 
+      {/* Related */}
       {relatedProjects.length > 0 ? (
         <section className="mt-10">
           <h2 className="text-2xl font-bold tracking-tight">Related Projects</h2>
@@ -180,13 +228,14 @@ export default function ProjectCaseStudyPage({
               <Link
                 key={item.slug}
                 href={`/projects/${item.slug}`}
-                className="group glass glass-highlight overflow-hidden rounded-3xl border border-white/10 transition hover:-translate-y-1 hover:border-white/20"
+                className="group glass glass-highlight glow-hover overflow-hidden rounded-3xl border border-white/10"
               >
-                <div className="relative aspect-[16/10] w-full bg-white/5">
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-white/5">
                   <Image
                     src={item.cover}
                     alt={item.title}
                     fill
+                    sizes="(max-width: 1024px) 50vw, 33vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                   />
                 </div>
@@ -194,8 +243,12 @@ export default function ProjectCaseStudyPage({
                   <div className="text-xs uppercase tracking-[0.16em] text-white/55">
                     {item.category}
                   </div>
-                  <h3 className="mt-2 text-lg font-bold tracking-tight">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/70">{item.subtitle}</p>
+                  <h3 className="mt-2 text-lg font-bold tracking-tight">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-white/70 line-clamp-2">
+                    {item.subtitle}
+                  </p>
                 </div>
               </Link>
             ))}
@@ -208,13 +261,13 @@ export default function ProjectCaseStudyPage({
         <div>
           <div className="text-lg font-bold">Want similar work?</div>
           <div className="text-sm text-white/70">
-            Send a message — I’ll reply with next steps.
+            Send a message — I&apos;ll reply with next steps.
           </div>
         </div>
 
         <Link
           href="/#contact"
-          className="rounded-2xl bg-[#40FF00] px-5 py-3 text-sm font-bold text-black hover:brightness-110"
+          className="rounded-2xl bg-[#40FF00] px-5 py-3 text-sm font-bold text-black hover:brightness-110 transition shadow-[0_0_20px_rgba(64,255,0,0.2)]"
         >
           Contact →
         </Link>
