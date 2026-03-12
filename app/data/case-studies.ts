@@ -1,3 +1,8 @@
+export type GalleryGroup = {
+  title: string;
+  images: string[];
+};
+
 export type CaseStudy = {
   slug: string;
   title: string;
@@ -8,7 +13,7 @@ export type CaseStudy = {
   tools?: string[];
   tags?: string[];
   cover: string;
-  gallery: string[];
+  galleryGroups: GalleryGroup[];
   sections: Array<{ heading: string; body: string }>;
 };
 
@@ -24,13 +29,23 @@ export const CASE_STUDIES: CaseStudy[] = [
     tools: ["Photoshop", "Illustrator", "Figma"],
     tags: ["Social", "Campaign", "Ads", "Design"],
     cover: "/projects/social/todos/01.png",
-    gallery: [
-      "/projects/social/todos/01.png",
-      "/projects/social/todos/02.png",
-      "/projects/social/todos/03.png",
-      "/projects/social/Study Lleap/01.png",
-      "/projects/social/Study Lleap/02.png",
-      "/projects/social/Study Lleap/03.png",
+    galleryGroups: [
+      {
+        title: "Todos",
+        images: [
+          "/projects/social/todos/01.png",
+          "/projects/social/todos/02.png",
+          "/projects/social/todos/03.png",
+        ],
+      },
+      {
+        title: "Study Lleap",
+        images: [
+          "/projects/social/Study Lleap/01.png",
+          "/projects/social/Study Lleap/02.png",
+          "/projects/social/Study Lleap/03.png",
+        ],
+      },
     ],
     sections: [
       {
@@ -58,13 +73,23 @@ export const CASE_STUDIES: CaseStudy[] = [
     tools: ["Illustrator", "InDesign", "Figma"],
     tags: ["Branding", "Identity", "Logo", "Guidelines"],
     cover: "/projects/social/خدماتي/01.png",
-    gallery: [
-      "/projects/social/خدماتي/01.png",
-      "/projects/social/خدماتي/02.png",
-      "/projects/social/خدماتي/03.png",
-      "/projects/social/مودة/01.jpg",
-      "/projects/social/مودة/02.png",
-      "/projects/social/مودة/03.jpg",
+    galleryGroups: [
+      {
+        title: "خدماتي",
+        images: [
+          "/projects/social/خدماتي/01.png",
+          "/projects/social/خدماتي/02.png",
+          "/projects/social/خدماتي/03.png",
+        ],
+      },
+      {
+        title: "مودة",
+        images: [
+          "/projects/social/مودة/01.jpg",
+          "/projects/social/مودة/02.png",
+          "/projects/social/مودة/03.jpg",
+        ],
+      },
     ],
     sections: [
       {
@@ -92,10 +117,15 @@ export const CASE_STUDIES: CaseStudy[] = [
     tools: ["Illustrator", "Photoshop", "Dimension"],
     tags: ["Packaging", "Print", "Mockup", "Product"],
     cover: "/projects/social/مطبخ السلام/01.png",
-    gallery: [
-      "/projects/social/مطبخ السلام/01.png",
-      "/projects/social/مطبخ السلام/02.png",
-      "/projects/social/مطبخ السلام/03.png",
+    galleryGroups: [
+      {
+        title: "مطبخ السلام",
+        images: [
+          "/projects/social/مطبخ السلام/01.png",
+          "/projects/social/مطبخ السلام/02.png",
+          "/projects/social/مطبخ السلام/03.png",
+        ],
+      },
     ],
     sections: [
       {

@@ -57,17 +57,16 @@ export default async function ProjectCaseStudyPage(
 
   return (
     <main className="mx-auto max-w-[1320px] px-4 py-10 text-white md:py-12">
-      {/* Breadcrumbs */}
       <div className="glass glass-highlight rounded-2xl border border-white/10 px-4 py-3 md:px-5">
         <nav
           className="flex flex-wrap items-center gap-2 text-xs text-white/60 sm:text-sm"
           aria-label="Breadcrumb"
         >
-          <Link href="/" className="hover:text-white transition-colors">
+          <Link href="/" className="transition-colors hover:text-white">
             Home
           </Link>
           <span className="text-white/30">/</span>
-          <Link href="/projects" className="hover:text-white transition-colors">
+          <Link href="/projects" className="transition-colors hover:text-white">
             Projects
           </Link>
           <span className="text-white/30">/</span>
@@ -78,19 +77,18 @@ export default async function ProjectCaseStudyPage(
       <div className="mt-5 flex items-center justify-between gap-4">
         <Link
           href="/projects"
-          className="text-sm text-white/70 hover:text-white transition-colors"
+          className="text-sm text-white/70 transition-colors hover:text-white"
         >
           ← Back to projects
         </Link>
         <Link
           href="/#contact"
-          className="text-sm font-semibold text-[#40FF00] hover:opacity-90 transition-opacity"
+          className="text-sm font-semibold text-[#40FF00] transition-opacity hover:opacity-90"
         >
           Hire me →
         </Link>
       </div>
 
-      {/* Header */}
       <section className="mt-6 grid gap-7 lg:grid-cols-[1.12fr_.88fr]">
         <div className="glass glass-highlight rounded-3xl border border-white/10 p-7">
           <div className="flex flex-wrap items-center gap-2 text-xs text-white/70">
@@ -118,7 +116,7 @@ export default async function ProjectCaseStudyPage(
 
           {p.tools?.length ? (
             <div className="mt-5">
-              <p className="text-[11px] uppercase tracking-[0.15em] text-white/50 mb-2">
+              <p className="mb-2 text-[11px] uppercase tracking-[0.15em] text-white/50">
                 Tools Used
               </p>
               <div className="flex flex-wrap gap-2">
@@ -135,7 +133,6 @@ export default async function ProjectCaseStudyPage(
           ) : null}
         </div>
 
-        {/* Cover */}
         <div className="glass glass-highlight overflow-hidden rounded-3xl border border-white/10">
           <div className="relative aspect-[16/10] w-full">
             <Image
@@ -150,14 +147,13 @@ export default async function ProjectCaseStudyPage(
         </div>
       </section>
 
-      {/* Case Study Sections */}
       <section className="mt-10 grid gap-5 lg:grid-cols-3">
         {p.sections.map((s, i) => (
           <div
             key={s.heading}
             className="glass glass-highlight rounded-3xl border border-white/10 p-6"
           >
-            <div className="flex items-center gap-3 mb-3">
+            <div className="mb-3 flex items-center gap-3">
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#40FF00]/15 text-xs font-bold text-[#40FF00]">
                 {i + 1}
               </span>
@@ -168,19 +164,23 @@ export default async function ProjectCaseStudyPage(
         ))}
       </section>
 
-      {/* Gallery */}
       <section className="mt-11">
         <div className="flex items-end justify-between gap-4">
-          <h2 className="text-2xl font-bold tracking-tight">Gallery</h2>
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight">Gallery</h2>
+            <p className="mt-1 text-sm text-white/60">
+              Work grouped by client / brand
+            </p>
+          </div>
+
           <p className="text-sm text-white/60">
             Click any image to preview in lightbox
           </p>
         </div>
 
-        <LightboxClient images={p.gallery} />
+        <LightboxClient groups={p.galleryGroups} />
       </section>
 
-      {/* Prev / Next */}
       <section className="mt-10 grid gap-5 lg:grid-cols-2">
         <div className="glass glass-highlight rounded-3xl border border-white/10 p-5 md:p-6">
           <div className="text-xs uppercase tracking-[0.18em] text-white/55">
@@ -189,7 +189,7 @@ export default async function ProjectCaseStudyPage(
           {prevProject ? (
             <Link
               href={`/projects/${prevProject.slug}`}
-              className="mt-2 inline-block text-lg font-bold tracking-tight hover:text-[#40FF00] transition-colors"
+              className="mt-2 inline-block text-lg font-bold tracking-tight transition-colors hover:text-[#40FF00]"
             >
               ← {prevProject.title}
             </Link>
@@ -200,14 +200,14 @@ export default async function ProjectCaseStudyPage(
           )}
         </div>
 
-        <div className="glass glass-highlight rounded-3xl border border-white/10 p-5 md:p-6 text-left lg:text-right">
+        <div className="glass glass-highlight rounded-3xl border border-white/10 p-5 text-left md:p-6 lg:text-right">
           <div className="text-xs uppercase tracking-[0.18em] text-white/55">
             Next
           </div>
           {nextProject ? (
             <Link
               href={`/projects/${nextProject.slug}`}
-              className="mt-2 inline-block text-lg font-bold tracking-tight hover:text-[#40FF00] transition-colors"
+              className="mt-2 inline-block text-lg font-bold tracking-tight transition-colors hover:text-[#40FF00]"
             >
               {nextProject.title} →
             </Link>
@@ -219,7 +219,6 @@ export default async function ProjectCaseStudyPage(
         </div>
       </section>
 
-      {/* Related */}
       {relatedProjects.length > 0 ? (
         <section className="mt-10">
           <h2 className="text-2xl font-bold tracking-tight">Related Projects</h2>
@@ -246,7 +245,7 @@ export default async function ProjectCaseStudyPage(
                   <h3 className="mt-2 text-lg font-bold tracking-tight">
                     {item.title}
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-white/70 line-clamp-2">
+                  <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/70">
                     {item.subtitle}
                   </p>
                 </div>
@@ -256,8 +255,7 @@ export default async function ProjectCaseStudyPage(
         </section>
       ) : null}
 
-      {/* CTA */}
-      <div className="mt-12 glass glass-highlight rounded-3xl border border-white/10 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="mt-12 glass glass-highlight flex flex-col items-start justify-between gap-4 rounded-3xl border border-white/10 p-6 sm:flex-row sm:items-center">
         <div>
           <div className="text-lg font-bold">Want similar work?</div>
           <div className="text-sm text-white/70">
@@ -267,7 +265,7 @@ export default async function ProjectCaseStudyPage(
 
         <Link
           href="/#contact"
-          className="rounded-2xl bg-[#40FF00] px-5 py-3 text-sm font-bold text-black hover:brightness-110 transition shadow-[0_0_20px_rgba(64,255,0,0.2)]"
+          className="rounded-2xl bg-[#40FF00] px-5 py-3 text-sm font-bold text-black shadow-[0_0_20px_rgba(64,255,0,0.2)] transition hover:brightness-110"
         >
           Contact →
         </Link>

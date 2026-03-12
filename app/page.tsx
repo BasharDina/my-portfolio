@@ -27,48 +27,37 @@ export default function Home() {
     <main ref={mainRef} className="min-h-screen">
       <Navbar />
 
-      {/* Hero — pinned scroll-story */}
       <div data-home-chapter="hero">
         <Hero />
       </div>
 
-      {/* Section divider */}
       <div className="section-divider" />
 
-      {/* Testimonials */}
-      <section id="about" className="container-lux section-pad">
+      <div data-home-chapter="about" className="container-lux">
         <About />
-      </section>
-
-      <div className="section-divider" />
-
-      {/* Services — pinned scroll-story */}
-      <div data-home-chapter="services">
-        <section id="skills" className="container-lux section-pad">
-          <Services />
-        </section>
       </div>
 
       <div className="section-divider" />
 
-      {/* Projects Preview — pinned scroll-story */}
-      <div data-home-chapter="projects">
-        <section id="projects" className="container-lux section-pad">
-          <ProjectsPreview />
-        </section>
+      <div data-home-chapter="services" className="container-lux">
+        <Services />
       </div>
 
       <div className="section-divider" />
 
-      {/* Contact */}
-      <section id="contact" className="container-lux section-pad">
+      <div data-home-chapter="projects" className="container-lux">
+        <ProjectsPreview />
+      </div>
+
+      <div className="section-divider" />
+
+      <div className="container-lux">
         <Contact />
-      </section>
+      </div>
 
       <div className="section-divider" />
 
-      {/* Enter Experience CTA */}
-      <section className="container-lux pb-20">
+      <section className="container-lux pb-14 pt-6 sm:pb-16 sm:pt-8">
         <div className="glass glass-highlight rounded-3xl p-8 text-center sm:p-10">
           <div className="mx-auto max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#40FF00]">
@@ -85,7 +74,8 @@ export default function Home() {
               href="/experience"
               className="mt-7 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#40FF00] px-7 py-3 text-base font-bold text-black transition hover:brightness-110 active:scale-[0.98] shadow-[0_0_30px_rgba(64,255,0,0.25)]"
             >
-              Enter Experience <ArrowRight size={18} />
+              <span className="text-black">Enter Experience</span>
+              <ArrowRight size={18} className="text-black" />
             </Link>
           </div>
         </div>

@@ -67,7 +67,6 @@ export default function Hero() {
           "-=0.78"
         );
 
-      // Glow orbit pulse
       const glow = section.querySelector<HTMLElement>(".hero-glow-orbit");
       if (glow) {
         gsap.to(glow, {
@@ -79,67 +78,17 @@ export default function Hero() {
           ease: "sine.inOut",
         });
       }
-
-      // Magnetic CTA buttons
-      const ctas = gsap.utils.toArray<HTMLElement>(".hero-cta-magnetic");
-      ctas.forEach((el) => {
-        const shine = el.querySelector<HTMLElement>(".hero-cta-shine");
-        const strength = 0.16;
-
-        const enter = () => gsap.to(el, { scale: 1.02, duration: 0.24, ease: "power3.out" });
-        const leave = () => {
-          gsap.to(el, { x: 0, y: 0, scale: 1, duration: 0.45, ease: "elastic.out(1, 0.5)" });
-          if (shine) gsap.to(shine, { xPercent: 0, yPercent: 0, opacity: 0.32, duration: 0.28, ease: "power2.out" });
-        };
-        const move = (e: MouseEvent) => {
-          const rect = el.getBoundingClientRect();
-          const relX = e.clientX - rect.left;
-          const relY = e.clientY - rect.top;
-          const x = relX - rect.width / 2;
-          const y = relY - rect.height / 2;
-
-          gsap.to(el, { x: x * strength, y: y * strength, duration: 0.28, ease: "power2.out" });
-
-          if (shine) {
-            const xPct = ((relX / rect.width) * 100 - 50) * 0.85;
-            const yPct = ((relY / rect.height) * 100 - 50) * 0.85;
-            gsap.to(shine, { xPercent: xPct, yPercent: yPct, opacity: 0.55, duration: 0.2, ease: "power2.out" });
-          }
-        };
-        const down = () => gsap.to(el, { scale: 0.975, duration: 0.12, ease: "power2.out" });
-        const up = () => gsap.to(el, { scale: 1.02, duration: 0.16, ease: "power2.out" });
-
-        el.addEventListener("mouseenter", enter);
-        el.addEventListener("mousemove", move);
-        el.addEventListener("mouseleave", leave);
-        el.addEventListener("mousedown", down);
-        el.addEventListener("mouseup", up);
-
-        (el as HTMLElement & { __heroCleanup?: () => void }).__heroCleanup = () => {
-          el.removeEventListener("mouseenter", enter);
-          el.removeEventListener("mousemove", move);
-          el.removeEventListener("mouseleave", leave);
-          el.removeEventListener("mousedown", down);
-          el.removeEventListener("mouseup", up);
-        };
-      });
     }, section);
 
-    return () => {
-      const node = sectionRef.current;
-      if (node) {
-        node.querySelectorAll<HTMLElement>(".hero-cta-magnetic").forEach((el) => {
-          const cleanup = (el as HTMLElement & { __heroCleanup?: () => void }).__heroCleanup;
-          cleanup?.();
-        });
-      }
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={sectionRef} id="home" className="relative overflow-hidden pt-28 pb-20">
-      {/* Cinematic background layers */}
+    <section
+      ref={sectionRef}
+      id="home"
+      className="relative overflow-hidden pt-6 pb-16 sm:pt-8 sm:pb-18 lg:pt-10 lg:pb-20"
+    >
       <div className="absolute inset-0 -z-10">
         <div
           className="absolute inset-0"
@@ -161,13 +110,14 @@ export default function Hero() {
         <div
           className="hero-glow-orbit absolute left-1/2 top-[44%] h-[760px] w-[760px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.82] blur-3xl"
           style={{
-            background: "radial-gradient(circle, rgba(64, 255, 0, 0.28) 0%, rgba(124, 58, 237, 0.2) 40%, transparent 72%)",
+            background:
+              "radial-gradient(circle, rgba(64, 255, 0, 0.28) 0%, rgba(124, 58, 237, 0.2) 40%, transparent 72%)",
           }}
         />
       </div>
 
-      <div className="mx-auto grid max-w-[1320px] gap-10 px-3 pt-10 pb-20 sm:px-4 md:grid-cols-2 md:items-start md:gap-12 md:pt-14 md:pb-28 lg:px-5">
-        <div className="max-w-[590px]">
+      <div className="mx-auto grid max-w-[1320px] gap-10 px-3 pt-0 pb-10 sm:px-4 md:grid-cols-2 md:items-start md:gap-12 md:pt-1 md:pb-16 lg:px-5">
+        <div className="hero-content max-w-[590px]">
           <div className="hero-eyebrow inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/35 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-xl">
             <span className="h-2 w-2 rounded-full bg-[#40FF00]" />
             Available for freelance work
@@ -198,35 +148,25 @@ export default function Hero() {
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link
               href="/projects"
-              className="hero-cta hero-cta-magnetic relative inline-flex items-center justify-center overflow-hidden rounded-2xl bg-[#40FF00] px-6 py-3 text-sm font-bold text-black transition active:scale-[0.98] hover:brightness-110"
+              className="hero-cta btn-lux btn-lux-primary btn-lux-md"
             >
-              <span className="hero-cta-shine absolute inset-[-24%] z-[1] pointer-events-none opacity-[0.32]" style={{
-                background: "radial-gradient(180px 120px at center, rgba(255,255,255,0.32), rgba(64,255,0,0.2) 35%, transparent 72%)",
-              }} />
-              <span className="relative z-[2] inline-flex items-center gap-2">
-                View Projects <ArrowRight size={16} />
-              </span>
+              <span>View Projects</span>
+              <ArrowRight size={16} />
             </Link>
 
             <a
               href="/cv.pdf"
               download
-              className="hero-cta hero-cta-magnetic relative inline-flex items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-white/[0.04] px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition active:scale-[0.98] hover:border-[#40FF00]/40"
+              className="hero-cta btn-lux btn-lux-secondary btn-lux-md"
             >
-              <span className="hero-cta-shine absolute inset-[-24%] z-[1] pointer-events-none opacity-[0.32]" style={{
-                background: "radial-gradient(180px 120px at center, rgba(255,255,255,0.32), rgba(64,255,0,0.2) 35%, transparent 72%)",
-              }} />
-              <span className="relative z-[2]">Download CV</span>
+              <span>Download CV</span>
             </a>
 
             <Link
               href="/#contact"
-              className="hero-cta hero-cta-magnetic relative inline-flex items-center justify-center overflow-hidden rounded-2xl border border-white/15 bg-white/[0.04] px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition active:scale-[0.98] hover:border-[#40FF00]/40"
+              className="hero-cta btn-lux btn-lux-secondary btn-lux-md"
             >
-              <span className="hero-cta-shine absolute inset-[-24%] z-[1] pointer-events-none opacity-[0.32]" style={{
-                background: "radial-gradient(180px 120px at center, rgba(255,255,255,0.32), rgba(64,255,0,0.2) 35%, transparent 72%)",
-              }} />
-              <span className="relative z-[2]">Contact</span>
+              <span>Contact</span>
             </Link>
           </div>
 
@@ -252,7 +192,7 @@ export default function Hero() {
         </div>
 
         <div className="relative mx-auto w-full max-w-[560px] md:mx-0 md:justify-self-end">
-          <div className="hero-image-reveal overflow-hidden rounded-[24px] border border-white/15 bg-black/20">
+          <div className="hero-image-reveal overflow-hidden rounded-[24px]">
             <div className="hero-image-wrap relative w-full will-change-transform">
               <Image
                 src="/hero/bashar.png"
@@ -263,14 +203,11 @@ export default function Hero() {
                 sizes="(max-width: 768px) 90vw, 560px"
                 className="h-auto w-full select-none"
               />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/22 via-transparent to-white/[0.04]" />
             </div>
           </div>
-          <div className="pointer-events-none mx-auto mt-2 h-7 w-[340px] rounded-full bg-black/65 blur-2xl opacity-45" />
         </div>
       </div>
 
-      {/* Bottom border glow */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
     </section>
   );

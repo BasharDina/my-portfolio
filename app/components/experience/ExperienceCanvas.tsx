@@ -1,13 +1,14 @@
 "use client";
 
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment } from "@react-three/drei";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Sparkles } from "@react-three/drei";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useScrollState } from "./scroll-state";
 
 function useReducedMotion() {
   const [reduced, setReduced] = useState(false);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -16,154 +17,116 @@ function useReducedMotion() {
     media.addEventListener("change", update);
     return () => media.removeEventListener("change", update);
   }, []);
+
   return reduced;
 }
 
-/** Pause rendering when tab is hidden */
-function TabVisibilityManager() {
-  const { gl } = useThree();
-  useEffect(() => {
-    const onVisibilityChange = () => {
-      if (document.hidden) {
-        gl.setAnimationLoop(null);
-      } else {
-        gl.setAnimationLoop((time) => {
-          gl.render(gl.domElement as unknown as THREE.Scene, new THREE.Camera());
-        });
-      }
-    };
-    // We don't actually need to manage the loop ourselves - 
-    // R3F handles it. Just pause/resume via frameloop would be better.
-    // Instead, let's use a simpler approach:
-    return () => {};
-  }, [gl]);
-  return null;
-}
-
-function HeroObject({
+function ExperienceRings({
   reducedMotion,
   progress,
 }: {
   reducedMotion: boolean;
   progress: number;
 }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const materialRef = useRef<THREE.MeshPhysicalMaterial>(null);
-  const neonColor = useMemo(() => new THREE.Color("#2fff9b"), []);
-  const baseColor = useMemo(() => new THREE.Color("#0a0f0d"), []);
-  const darkColor = useMemo(() => new THREE.Color("#02140d"), []);
-  const blackColor = useMemo(() => new THREE.Color("#000000"), []);
+  const groupRef = useRef<THREE.Group>(null);
+  const ring1Ref = useRef<THREE.Mesh>(null);
+  const ring2Ref = useRef<THREE.Mesh>(null);
+  const ring3Ref = useRef<THREE.Mesh>(null);
+  const coreRef = useRef<THREE.Mesh>(null);
+
+  const green = useMemo(() => new THREE.Color("#40FF00"), []);
+  const mint = useMemo(() => new THREE.Color("#8BFFB2"), []);
 
   useFrame((state, delta) => {
-    const mesh = meshRef.current;
-    const material = materialRef.current;
-    if (!mesh || !material) return;
+    const t = state.clock.elapsedTime;
+    const p = reducedMotion ? 0 : progress;
 
-    const liveProgress = reducedMotion ? 0 : progress;
-    const rotationTargetY = liveProgress * Math.PI * 2.15;
-    const rotationTargetX = liveProgress * 0.65;
+    const group = groupRef.current;
+    const ring1 = ring1Ref.current;
+    const ring2 = ring2Ref.current;
+    const ring3 = ring3Ref.current;
+    const core = coreRef.current;
 
-    const idleStrength = reducedMotion ? 0 : 1 - Math.min(1, liveProgress * 1.35);
-    mesh.rotation.x += delta * 0.12 * idleStrength;
-    mesh.rotation.y += delta * 0.22 * idleStrength;
-    mesh.position.y = Math.sin(state.clock.elapsedTime * 0.7) * 0.08 * idleStrength;
+    if (!group || !ring1 || !ring2 || !ring3 || !core) return;
 
-    mesh.rotation.y = THREE.MathUtils.lerp(mesh.rotation.y, rotationTargetY, Math.min(1, delta * 3.4));
-    mesh.rotation.x = THREE.MathUtils.lerp(mesh.rotation.x, rotationTargetX, Math.min(1, delta * 3.4));
+    group.rotation.y += delta * (0.12 + p * 0.16);
+    group.rotation.x = Math.sin(t * 0.28) * 0.06;
+    group.position.x = THREE.MathUtils.lerp(
+      group.position.x,
+      1.15 + p * 0.25,
+      Math.min(1, delta * 2.2)
+    );
+    group.position.y = Math.sin(t * 0.65) * 0.12;
 
-    material.color.copy(baseColor).lerp(darkColor, liveProgress);
-    material.emissive.copy(blackColor).lerp(neonColor, liveProgress);
-    material.emissiveIntensity = THREE.MathUtils.lerp(material.emissiveIntensity, 0.08 + liveProgress * 1.4, Math.min(1, delta * 4));
-    material.clearcoat = 1;
-    material.clearcoatRoughness = 0.06 - liveProgress * 0.045;
-    material.roughness = 0.2 - liveProgress * 0.1;
-    material.envMapIntensity = 1.3 + liveProgress;
+    ring1.rotation.x += delta * (0.35 + p * 0.08);
+    ring1.rotation.y += delta * 0.15;
 
-    const scale = THREE.MathUtils.lerp(mesh.scale.x, 1 + liveProgress * 0.12, Math.min(1, delta * 4));
-    mesh.scale.setScalar(scale);
+    ring2.rotation.y -= delta * (0.26 + p * 0.06);
+    ring2.rotation.z += delta * 0.14;
+
+    ring3.rotation.x -= delta * 0.2;
+    ring3.rotation.z -= delta * (0.18 + p * 0.05);
+
+    core.scale.setScalar(1 + Math.sin(t * 1.1) * 0.025 + p * 0.04);
   });
 
   return (
-    <mesh ref={meshRef}>
-      <torusKnotGeometry args={[0.75, 0.22, 220, 28]} />
-      <meshPhysicalMaterial
-        ref={materialRef}
-        color="#0a0f0d"
-        metalness={0.8}
-        roughness={0.18}
-        emissive="#000000"
-        emissiveIntensity={0.05}
-        clearcoat={1}
-        clearcoatRoughness={0.05}
-        envMapIntensity={1.4}
+    <group ref={groupRef} position={[1.15, 0, 0]}>
+      <mesh ref={coreRef}>
+        <icosahedronGeometry args={[1.05, 2]} />
+        <meshStandardMaterial
+          color="#0c1410"
+          emissive={green}
+          emissiveIntensity={0.28}
+          metalness={0.88}
+          roughness={0.2}
+        />
+      </mesh>
+
+      <mesh ref={ring1Ref} rotation={[0.9, 0.25, 0]}>
+        <torusGeometry args={[1.95, 0.06, 24, 220]} />
+        <meshStandardMaterial
+          color={green}
+          emissive={green}
+          emissiveIntensity={0.58}
+          metalness={1}
+          roughness={0.15}
+        />
+      </mesh>
+
+      <mesh ref={ring2Ref} rotation={[1.7, 0.8, 1.15]}>
+        <torusGeometry args={[2.45, 0.07, 24, 220]} />
+        <meshStandardMaterial
+          color={mint}
+          emissive={mint}
+          emissiveIntensity={0.32}
+          metalness={0.96}
+          roughness={0.18}
+        />
+      </mesh>
+
+      <mesh ref={ring3Ref} rotation={[0.45, 1.15, 1.9]}>
+        <torusGeometry args={[2.9, 0.04, 24, 220]} />
+        <meshStandardMaterial
+          color="#eafff0"
+          emissive="#40FF00"
+          emissiveIntensity={0.12}
+          metalness={0.95}
+          roughness={0.28}
+          transparent
+          opacity={0.82}
+        />
+      </mesh>
+
+      <Sparkles
+        count={120}
+        scale={[9, 6, 9]}
+        size={2.6}
+        speed={0.28}
+        opacity={0.4}
+        color="#7dff9f"
       />
-    </mesh>
-  );
-}
-
-function Particles({
-  reducedMotion,
-  progress,
-}: {
-  reducedMotion: boolean;
-  progress: number;
-}) {
-  const pointsRef = useRef<THREE.Points>(null);
-  const geometryRef = useRef<THREE.BufferGeometry<THREE.NormalBufferAttributes>>(null);
-  const materialRef = useRef<THREE.PointsMaterial>(null);
-  const maxCount = 360;
-  const minCount = reducedMotion ? 120 : 80;
-
-  const positions = useMemo(() => {
-    const count = maxCount;
-    const data = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      const i3 = i * 3;
-      data[i3] = (Math.random() - 0.5) * 12;
-      data[i3 + 1] = (Math.random() - 0.5) * 7;
-      data[i3 + 2] = (Math.random() - 0.5) * 8;
-    }
-    return data;
-  }, [reducedMotion]);
-
-  const startColor = useMemo(() => new THREE.Color("#9ae6b4"), []);
-  const endColor = useMemo(() => new THREE.Color("#2fff9b"), []);
-
-  useFrame((_, delta) => {
-    if (!pointsRef.current || !materialRef.current) return;
-    const liveProgress = reducedMotion ? 0 : progress;
-
-    const spinBoost = reducedMotion ? 0.35 : 1;
-    pointsRef.current.rotation.y += delta * (0.02 + liveProgress * 0.18) * spinBoost;
-    pointsRef.current.rotation.x += delta * (0.01 + liveProgress * 0.09) * spinBoost;
-
-    const desiredCount = reducedMotion ? minCount : Math.round(minCount + (maxCount - minCount) * liveProgress);
-    pointsRef.current.geometry.setDrawRange(0, desiredCount);
-
-    materialRef.current.opacity = 0.38 + liveProgress * 0.5;
-    materialRef.current.size = 0.02 + liveProgress * 0.028;
-    materialRef.current.color.lerpColors(startColor, endColor, liveProgress);
-  });
-
-  useEffect(() => {
-    const geometry = geometryRef.current;
-    if (!geometry) return;
-    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-  }, [positions]);
-
-  return (
-    <points ref={pointsRef}>
-      <bufferGeometry ref={geometryRef} />
-      <pointsMaterial
-        ref={materialRef}
-        color="#9ae6b4"
-        size={0.02}
-        sizeAttenuation
-        transparent
-        opacity={0.45}
-        depthWrite={false}
-      />
-    </points>
+    </group>
   );
 }
 
@@ -175,29 +138,26 @@ function Scene({
   progress: number;
 }) {
   useFrame(({ camera }, delta) => {
-    const liveProgress = reducedMotion ? 0 : progress;
-    const desiredZ = 3.2 - liveProgress * 1.1;
-    camera.position.z += (desiredZ - camera.position.z) * Math.min(1, delta * 4.2);
-    camera.position.x += (liveProgress * 0.16 - camera.position.x) * Math.min(1, delta * 4.2);
-    camera.lookAt(0, 0, 0);
+    const p = reducedMotion ? 0 : progress;
+
+    const targetZ = 6 - p * 0.45;
+    const targetX = 0.15;
+    const targetY = 0;
+
+    camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, Math.min(1, delta * 2));
+    camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, Math.min(1, delta * 2));
+    camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY, Math.min(1, delta * 2));
+    camera.lookAt(1.1, 0, 0);
   });
 
   return (
     <>
-      <color attach="background" args={["#030505"]} />
-      <fog attach="fog" args={["#030505", 3.5, 12]} />
-
-      <ambientLight intensity={0.16} />
-      <directionalLight position={[3, 4, 2]} intensity={0.35} color="#d9ffe8" />
-      <pointLight position={[-2.5, 0.5, 2.5]} intensity={0.8} color="#2fff9b" />
-      <pointLight position={[0, -2, -2]} intensity={0.25} color="#9aa0a6" />
-
-      <group>
-        <HeroObject reducedMotion={reducedMotion} progress={progress} />
-      </group>
-      <Particles reducedMotion={reducedMotion} progress={progress} />
-
-      <Environment preset="city" />
+      <color attach="background" args={["#020403"]} />
+      <ambientLight intensity={1.05} />
+      <directionalLight position={[3, 4, 4]} intensity={1.6} color="#ffffff" />
+      <pointLight position={[-3, 1, 3]} intensity={1.5} color="#40FF00" />
+      <pointLight position={[2, -1, 2]} intensity={1.0} color="#dffff0" />
+      <ExperienceRings reducedMotion={reducedMotion} progress={progress} />
     </>
   );
 }
@@ -205,25 +165,19 @@ function Scene({
 export default function ExperienceCanvas() {
   const reducedMotion = useReducedMotion();
   const { progress } = useScrollState();
-  const [visible, setVisible] = useState(true);
-
-  // Pause canvas when tab is hidden
-  useEffect(() => {
-    const onVisibilityChange = () => setVisible(!document.hidden);
-    document.addEventListener("visibilitychange", onVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
-  }, []);
 
   return (
-    <div className="absolute inset-0" id="experience-pin">
+    <div className="absolute inset-0">
       <Canvas
-        camera={{ position: [0, 0, 3.2], fov: 45 }}
-        dpr={[1, Math.min(1.5, typeof window !== "undefined" ? window.devicePixelRatio : 1.5)]}
-        frameloop={visible ? "always" : "never"}
+        camera={{ position: [0.15, 0, 6], fov: 42 }}
+        dpr={[1, 1.5]}
+        frameloop="always"
+        gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       >
         <Scene reducedMotion={reducedMotion} progress={progress} />
       </Canvas>
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(47,255,155,0.15),transparent_45%),radial-gradient(circle_at_30%_80%,rgba(255,255,255,0.07),transparent_40%)]" />
+
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_72%_24%,rgba(64,255,0,0.14),transparent_32%),radial-gradient(circle_at_28%_76%,rgba(255,255,255,0.04),transparent_30%)]" />
     </div>
   );
 }

@@ -13,8 +13,8 @@ const DATA = [
 
 export default function About() {
   return (
-    <section id="about" className="py-20">
-      <Reveal>
+<section id="about" className="py-12 sm:py-14">
+        <Reveal>
         <div className="mx-auto max-w-[1320px] px-3 sm:px-4 lg:px-5">
           <div className="flex items-end justify-between gap-6">
             <div>

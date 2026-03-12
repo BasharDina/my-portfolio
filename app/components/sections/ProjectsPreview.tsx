@@ -12,8 +12,8 @@ export default function ProjectsPreview() {
   const featured = CASE_STUDIES.slice(0, 3);
 
   return (
-    <section id="projects" className="py-20">
-      <Reveal>
+<section id="projects" className="py-12 sm:py-14">
+        <Reveal>
         <div className="mx-auto max-w-[1320px] px-3 sm:px-4 lg:px-5">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div>

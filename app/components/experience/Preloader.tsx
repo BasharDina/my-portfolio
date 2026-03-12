@@ -11,30 +11,39 @@ export default function Preloader({ onDone }: PreloaderProps) {
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
-    let value = 0;
+    let cancelled = false;
+    let timeoutId: number | undefined;
+
     const tick = () => {
-      value += Math.max(1, (100 - value) * 0.08);
-      const next = Math.min(100, Math.round(value));
-      setProgress(next);
+      setProgress((prev) => {
+        const next = Math.min(100, prev + Math.max(1, (100 - prev) * 0.12));
 
-      if (next >= 100) {
-        setTimeout(() => setHidden(true), 220);
-        setTimeout(() => onDone?.(), 900);
-        return;
-      }
+        if (next >= 100) {
+          timeoutId = window.setTimeout(() => {
+            if (cancelled) return;
+            setHidden(true);
+            onDone?.();
+          }, 280);
+        } else {
+          timeoutId = window.setTimeout(tick, 26);
+        }
 
-      const timeout = window.setTimeout(tick, 24);
-      return () => window.clearTimeout(timeout);
+        return Math.round(next);
+      });
     };
 
-    const timeout = window.setTimeout(tick, 200);
-    return () => window.clearTimeout(timeout);
+    timeoutId = window.setTimeout(tick, 180);
+
+    return () => {
+      cancelled = true;
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
   }, [onDone]);
 
   return (
     <div
       aria-hidden={hidden}
-      className={`pointer-events-none fixed inset-0 z-50 grid place-items-center bg-[#020303] transition-opacity duration-700 ${
+      className={`pointer-events-none fixed inset-0 z-[80] grid place-items-center bg-[#020303] transition-opacity duration-700 ${
         hidden ? "opacity-0" : "opacity-100"
       }`}
     >

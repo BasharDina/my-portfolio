@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Send, CheckCircle, AlertCircle, Mail, MessageSquare, User } from "lucide-react";
 import Reveal from "../ui/Reveal";
 
@@ -36,11 +36,10 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact" className="py-20 sm:py-24">
+    <section id="contact" className="py-12 sm:py-14">
       <Reveal>
         <div className="mx-auto max-w-[1320px] px-3 sm:px-4 lg:px-5">
           <div className="grid gap-8 lg:grid-cols-[1fr_1.2fr]">
-            {/* Left info */}
             <div className="glass glass-highlight rounded-3xl border border-white/10 p-7 sm:p-8">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#40FF00]">
                 Get in Touch
@@ -55,13 +54,13 @@ export default function Contact() {
 
               <div className="mt-8 space-y-4">
                 <div className="flex items-center gap-3 text-sm text-white/70">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.06] border border-white/10">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
                     <Mail className="h-4 w-4 text-[#40FF00]" />
                   </div>
                   <span>bashar@example.com</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-white/70">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/[0.06] border border-white/10">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
                     <MessageSquare className="h-4 w-4 text-[#40FF00]" />
                   </div>
                   <span>Usually responds within 24h</span>
@@ -80,11 +79,13 @@ export default function Contact() {
               </div>
             </div>
 
-            {/* Form */}
             <div className="glass glass-highlight rounded-3xl border border-white/10 p-7 sm:p-8">
               <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label htmlFor="name" className="mb-2 block text-xs font-semibold uppercase tracking-[0.15em] text-white/55">
+                  <label
+                    htmlFor="name"
+                    className="mb-2 block text-xs font-semibold uppercase tracking-[0.15em] text-white/55"
+                  >
                     Name
                   </label>
                   <div className="relative">
@@ -101,7 +102,10 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="mb-2 block text-xs font-semibold uppercase tracking-[0.15em] text-white/55">
+                  <label
+                    htmlFor="email"
+                    className="mb-2 block text-xs font-semibold uppercase tracking-[0.15em] text-white/55"
+                  >
                     Email
                   </label>
                   <div className="relative">
@@ -118,7 +122,10 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="mb-2 block text-xs font-semibold uppercase tracking-[0.15em] text-white/55">
+                  <label
+                    htmlFor="message"
+                    className="mb-2 block text-xs font-semibold uppercase tracking-[0.15em] text-white/55"
+                  >
                     Message
                   </label>
                   <div className="relative">
@@ -137,7 +144,7 @@ export default function Contact() {
                 <button
                   type="submit"
                   disabled={status === "sending"}
-                  className="group flex w-full items-center justify-center gap-2.5 rounded-2xl bg-[#40FF00] px-6 py-3.5 text-sm font-bold text-black transition hover:brightness-110 disabled:opacity-60 shadow-[0_0_20px_rgba(64,255,0,0.2)]"
+                  className="btn-lux btn-lux-primary btn-lux-lg w-full disabled:opacity-60"
                 >
                   {status === "sending" ? (
                     <>
@@ -146,16 +153,16 @@ export default function Contact() {
                     </>
                   ) : (
                     <>
-                      <Send className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      <Send className="h-4 w-4" />
                       Send Message
                     </>
                   )}
                 </button>
               </form>
 
-              <AnimatePresence>
+              <AnimatePresence mode="wait">
                 {status === "sent" && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
@@ -163,10 +170,11 @@ export default function Contact() {
                   >
                     <CheckCircle className="h-4 w-4" />
                     Message sent! I&apos;ll get back to you soon.
-                  </motion.div>
+                  </m.div>
                 )}
+
                 {status === "error" && (
-                  <motion.div
+                  <m.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
@@ -174,7 +182,7 @@ export default function Contact() {
                   >
                     <AlertCircle className="h-4 w-4" />
                     Something went wrong. Please try again.
-                  </motion.div>
+                  </m.div>
                 )}
               </AnimatePresence>
             </div>

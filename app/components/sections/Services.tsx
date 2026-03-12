@@ -27,8 +27,8 @@ const SERVICES = [
 
 export default function Services() {
   return (
-    <section id="services" className="py-20 sm:py-24">
-      <Reveal>
+<section id="services" className="py-12 sm:py-14">
+        <Reveal>
         <div className="mx-auto max-w-[1320px] px-3 sm:px-4 lg:px-5">
           <div className="mb-10 sm:mb-12">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#40FF00]">What I Offer</p>

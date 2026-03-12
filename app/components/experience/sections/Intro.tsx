@@ -7,12 +7,18 @@ export default function Intro({ reducedMotion }: IntroProps) {
 
   return (
     <section
-      data-exp-chapter
-      className="pointer-events-none absolute inset-0 flex min-h-screen items-center"
+      data-exp-scene
+      data-exp-scene-index="0"
+className="relative flex min-h-[70vh] items-center"
       aria-label="Experience intro"
     >
-      <div className="mx-auto w-full max-w-[1320px] px-6">
-        <div data-intro-parallax className="max-w-[900px]">
+<div className="mx-auto w-full max-w-[1320px] px-6 py-8 md:py-10">
+          <div
+          className="max-w-[900px]"
+          style={{
+            transform: reducedMotion ? "none" : "translateY(0px)",
+          }}
+        >
           <p
             className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.18em] text-white/80 backdrop-blur-xl"
             style={{ boxShadow: "0 0 28px rgba(64,255,0,0.18)" }}
@@ -22,14 +28,11 @@ export default function Intro({ reducedMotion }: IntroProps) {
           </p>
 
           <h1 className="text-5xl font-black leading-[0.95] tracking-tight md:text-7xl lg:text-8xl">
-            {lines.map((line, index) => (
+            {lines.map((line) => (
               <span
                 key={line}
                 className="block bg-gradient-to-r from-white via-white to-white/70 bg-clip-text text-transparent"
-                style={{
-                  textShadow: "0 0 36px rgba(64,255,0,0.18)",
-                  transitionDelay: reducedMotion ? "0ms" : `${index * 80}ms`,
-                }}
+                style={{ textShadow: "0 0 36px rgba(64,255,0,0.18)" }}
               >
                 {line}
               </span>

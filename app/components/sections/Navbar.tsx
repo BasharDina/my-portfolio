@@ -21,13 +21,14 @@ export default function Navbar() {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState<"/" | "/projects" | "/#contact">("/");
 
   const containerRef = useRef<HTMLDivElement | null>(null);
   const linkRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
   const [indicator, setIndicator] = useState({ left: 0, width: 0 });
 
   function getActiveHref() {
-    if (pathname === "/") return "/";
+    if (pathname === "/") return activeSection;
     if (pathname.startsWith("/projects")) return "/projects";
     if (pathname.startsWith("/experience")) return "/experience";
     return "/";
@@ -47,11 +48,54 @@ export default function Navbar() {
   }
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (pathname !== "/") return;
+
+    const homeEl = document.getElementById("home");
+    const projectsEl = document.getElementById("projects");
+    const contactEl = document.getElementById("contact");
+
+    const sections = [
+      { el: homeEl, href: "/" as const },
+      { el: projectsEl, href: "/projects" as const },
+      { el: contactEl, href: "/#contact" as const },
+    ].filter((item) => item.el);
+
+    if (!sections.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (!visible.length) return;
+
+        const id = visible[0].target.id;
+
+        if (id === "contact") setActiveSection("/#contact");
+        else if (id === "projects") setActiveSection("/projects");
+        else setActiveSection("/");
+      },
+      {
+        root: null,
+        threshold: [0.2, 0.35, 0.5, 0.65],
+        rootMargin: "-20% 0px -45% 0px",
+      }
+    );
+
+    sections.forEach((section) => {
+      if (section.el) observer.observe(section.el);
+    });
+
+    return () => observer.disconnect();
+  }, [pathname]);
 
   useEffect(() => {
     updateIndicator(activeHref);
@@ -66,12 +110,12 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50">
-      {/* Top accent line */}
       <div className="h-[2px] w-full">
         <div
           className="h-full w-full opacity-90"
           style={{
-            background: "linear-gradient(90deg, transparent, rgba(64,255,0,0.9), transparent)",
+            background:
+              "linear-gradient(90deg, transparent, rgba(64,255,0,0.9), transparent)",
           }}
         />
       </div>
@@ -83,7 +127,7 @@ export default function Navbar() {
             : "border-transparent bg-transparent"
         }`}
       >
-        <div className="mx-auto flex max-w-[1320px] items-center justify-between px-3 py-4 sm:px-4 lg:px-5">
+        <div className="mx-auto flex max-w-[1320px] items-center justify-between px-3 py-3 sm:px-4 lg:px-5">
           <Link href="/" className="flex items-center gap-2 font-bold">
             <span className="text-lg">
               <span className="text-foreground">Bashar</span>
@@ -95,7 +139,6 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop nav */}
           <div className="hidden items-center gap-4 md:flex">
             <div
               ref={containerRef}
@@ -107,7 +150,8 @@ export default function Navbar() {
                 style={{
                   left: indicator.left,
                   width: indicator.width,
-                  background: "linear-gradient(90deg, rgba(64,255,0,0.22), rgba(124,58,237,0.10))",
+                  background:
+                    "linear-gradient(90deg, rgba(64,255,0,0.22), rgba(124,58,237,0.10))",
                   boxShadow: "0 0 26px rgba(64,255,0,0.18)",
                 }}
               />
@@ -136,17 +180,16 @@ export default function Navbar() {
 
             <Link
               href="/#contact"
-              className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-foreground backdrop-blur-md transition hover:border-primary/60 hover:shadow-[0_0_18px_rgba(64,255,0,0.18)] active:scale-[0.98]"
+              className="btn-lux btn-lux-secondary btn-lux-sm"
             >
               Hire me
             </Link>
           </div>
 
-          {/* Mobile toggle */}
           <div className="flex items-center gap-3 md:hidden">
             <button
               onClick={() => setMobileOpen((s) => !s)}
-              className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm text-foreground active:scale-[0.98]"
+              className="btn-lux btn-lux-secondary btn-lux-sm px-4"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
             >
@@ -155,23 +198,22 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile menu */}
         <div
           className={[
-            "md:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-out",
+            "overflow-hidden transition-[max-height,opacity] duration-300 ease-out md:hidden",
             mobileOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0",
           ].join(" ")}
         >
           <div className="mx-auto max-w-6xl px-6 pb-5">
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 backdrop-blur-xl">
-              <nav className="flex flex-col gap-1" aria-label="Mobile navigation">
+              <nav className="flex flex-col gap-2" aria-label="Mobile navigation">
                 {navItems.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileOpen(false)}
                     className={[
-                      "text-left rounded-xl px-4 py-3 text-sm font-semibold transition",
+                      "rounded-xl px-4 py-3 text-left text-sm font-semibold transition",
                       item.href === activeHref
                         ? "bg-primary/15 text-foreground shadow-[0_0_18px_rgba(64,255,0,0.14)]"
                         : "text-muted-foreground hover:bg-primary/10 hover:text-foreground",
@@ -184,7 +226,7 @@ export default function Navbar() {
                 <Link
                   href="/#contact"
                   onClick={() => setMobileOpen(false)}
-                  className="mt-2 rounded-xl bg-primary px-4 py-3 text-center text-sm font-bold text-primary-foreground transition hover:brightness-110 active:scale-[0.98]"
+                  className="btn-lux btn-lux-primary btn-lux-sm mt-2 w-full"
                 >
                   Hire me
                 </Link>

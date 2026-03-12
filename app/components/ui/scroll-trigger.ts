@@ -22,25 +22,24 @@ export function initHomeScrollTriggers(root: HTMLElement): Cleanup {
     const projects = root.querySelector<HTMLElement>("[data-home-chapter='projects']");
 
     if (hero) {
-      const glow = hero.querySelector<HTMLElement>(".hero-visual-glow");
+      const glow = hero.querySelector<HTMLElement>(".hero-glow-orbit");
       const imageWrap = hero.querySelector<HTMLElement>(".hero-image-wrap");
+      const contentSide = hero.querySelector<HTMLElement>(".hero-content");
 
       const heroTl = gsap.timeline({
         scrollTrigger: {
           trigger: hero,
           start: "top top",
-          end: "+=120%",
-          scrub: 0.7,
-          pin: true,
-          anticipatePin: 1,
+          end: "bottom top",
+          scrub: 0.45,
         },
       });
 
       if (glow) {
         heroTl.fromTo(
           glow,
-          { scale: 1, opacity: 0.8, filter: "blur(40px)" },
-          { scale: 1.08, opacity: 1, filter: "blur(52px)", ease: "none" },
+          { scale: 1, opacity: 0.82, filter: "blur(48px)" },
+          { scale: 1.08, opacity: 1, filter: "blur(56px)", ease: "none" },
           0
         );
       }
@@ -49,7 +48,16 @@ export function initHomeScrollTriggers(root: HTMLElement): Cleanup {
         heroTl.fromTo(
           imageWrap,
           { yPercent: 0, scale: 1, rotate: 0 },
-          { yPercent: -3.5, scale: 1.035, rotate: 0.35, ease: "none" },
+          { yPercent: -4, scale: 1.025, rotate: 0.2, ease: "none" },
+          0
+        );
+      }
+
+      if (contentSide) {
+        heroTl.fromTo(
+          contentSide,
+          { y: 0, opacity: 1 },
+          { y: -18, opacity: 0.96, ease: "none" },
           0
         );
       }
@@ -58,66 +66,73 @@ export function initHomeScrollTriggers(root: HTMLElement): Cleanup {
     if (services) {
       const cards = gsap.utils.toArray<HTMLElement>("article", services);
 
-      const servicesTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: services,
-          start: "top top",
-          end: "+=120%",
-          scrub: 0.9,
-          pin: true,
-          anticipatePin: 1,
-        },
-      });
+      if (cards.length) {
+        gsap.set(cards, { y: 34, autoAlpha: 0, scale: 0.985 });
 
-      servicesTl.fromTo(
-        cards,
-        { y: 42, autoAlpha: 0, scale: 0.97 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          scale: 1,
-          stagger: 0.14,
-          duration: 1,
-          ease: "power2.out",
-        }
-      );
+        cards.forEach((card, index) => {
+          gsap.to(card, {
+            y: 0,
+            autoAlpha: 1,
+            scale: 1,
+            duration: 0.8,
+            ease: "power3.out",
+            delay: index * 0.04,
+            scrollTrigger: {
+              trigger: card,
+              start: "top 88%",
+              end: "top 62%",
+              scrub: false,
+              once: true,
+            },
+          });
+        });
+      }
     }
 
     if (projects) {
       const cards = gsap.utils.toArray<HTMLElement>("a.glass", projects);
-      const media = projects.querySelectorAll<HTMLElement>(".relative.h-44");
+      const media = gsap.utils.toArray<HTMLElement>(".relative.h-48", projects);
 
-      const projectsTl = gsap.timeline({
-        scrollTrigger: {
-          trigger: projects,
-          start: "top top",
-          end: "+=120%",
-          scrub: 0.85,
-          pin: true,
-          anticipatePin: 1,
-        },
-      });
+      if (cards.length) {
+        gsap.set(cards, { y: 40, autoAlpha: 0, scale: 0.985 });
 
-      projectsTl.fromTo(
-        cards,
-        { y: 56, autoAlpha: 0, scale: 0.975 },
-        {
-          y: 0,
-          autoAlpha: 1,
-          scale: 1,
-          stagger: 0.12,
-          duration: 1,
-          ease: "power2.out",
-        },
-        0
-      );
+        cards.forEach((card, index) => {
+          gsap.to(card, {
+            y: 0,
+            autoAlpha: 1,
+            scale: 1,
+            duration: 0.82,
+            ease: "power3.out",
+            delay: index * 0.05,
+            scrollTrigger: {
+              trigger: card,
+              start: "top 88%",
+              end: "top 62%",
+              scrub: false,
+              once: true,
+            },
+          });
+        });
+      }
 
-      projectsTl.fromTo(
-        media,
-        { yPercent: 0 },
-        { yPercent: -8, stagger: 0.1, duration: 1, ease: "none" },
-        0
-      );
+      if (media.length) {
+        media.forEach((item) => {
+          gsap.fromTo(
+            item,
+            { yPercent: 0 },
+            {
+              yPercent: -6,
+              ease: "none",
+              scrollTrigger: {
+                trigger: item,
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 0.5,
+              },
+            }
+          );
+        });
+      }
     }
 
     ScrollTrigger.refresh();
@@ -125,5 +140,6 @@ export function initHomeScrollTriggers(root: HTMLElement): Cleanup {
 
   return () => {
     ctx.revert();
+    ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
   };
 }
