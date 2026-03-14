@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { m, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Send, CheckCircle, AlertCircle, Mail, MessageSquare, User } from "lucide-react";
 import Reveal from "../ui/Reveal";
+import { Button } from "@/components/ui/button";
 
 export default function Contact() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -36,7 +37,7 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact" className="py-12 sm:py-14">
+    <section id="contact" className="py-20 sm:py-24">
       <Reveal>
         <div className="mx-auto max-w-[1320px] px-3 sm:px-4 lg:px-5">
           <div className="grid gap-8 lg:grid-cols-[1fr_1.2fr]">
@@ -82,10 +83,7 @@ export default function Contact() {
             <div className="glass glass-highlight rounded-3xl border border-white/10 p-7 sm:p-8">
               <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label
-                    htmlFor="name"
-                    className="mb-2 block text-xs font-semibold uppercase tracking-[0.15em] text-white/55"
-                  >
+                  <label htmlFor="name" className="mb-2 block text-xs font-semibold uppercase tracking-[0.15em] text-white/55">
                     Name
                   </label>
                   <div className="relative">
@@ -102,10 +100,7 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="email"
-                    className="mb-2 block text-xs font-semibold uppercase tracking-[0.15em] text-white/55"
-                  >
+                  <label htmlFor="email" className="mb-2 block text-xs font-semibold uppercase tracking-[0.15em] text-white/55">
                     Email
                   </label>
                   <div className="relative">
@@ -122,10 +117,7 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="message"
-                    className="mb-2 block text-xs font-semibold uppercase tracking-[0.15em] text-white/55"
-                  >
+                  <label htmlFor="message" className="mb-2 block text-xs font-semibold uppercase tracking-[0.15em] text-white/55">
                     Message
                   </label>
                   <div className="relative">
@@ -141,28 +133,24 @@ export default function Contact() {
                   </div>
                 </div>
 
-                <button
-                  type="submit"
-                  disabled={status === "sending"}
-                  className="btn-lux btn-lux-primary btn-lux-lg w-full disabled:opacity-60"
-                >
+                <Button type="submit" size="xl" className="w-full" disabled={status === "sending"}>
                   {status === "sending" ? (
                     <>
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-black/30 border-t-black" />
-                      Sending...
+                      <span className="text-black">Sending...</span>
                     </>
                   ) : (
                     <>
-                      <Send className="h-4 w-4" />
-                      Send Message
+                      <Send className="h-4 w-4 text-black" />
+                      <span className="text-black">Send Message</span>
                     </>
                   )}
-                </button>
+                </Button>
               </form>
 
-              <AnimatePresence mode="wait">
+              <AnimatePresence>
                 {status === "sent" && (
-                  <m.div
+                  <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
@@ -170,11 +158,10 @@ export default function Contact() {
                   >
                     <CheckCircle className="h-4 w-4" />
                     Message sent! I&apos;ll get back to you soon.
-                  </m.div>
+                  </motion.div>
                 )}
-
                 {status === "error" && (
-                  <m.div
+                  <motion.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
@@ -182,7 +169,7 @@ export default function Contact() {
                   >
                     <AlertCircle className="h-4 w-4" />
                     Something went wrong. Please try again.
-                  </m.div>
+                  </motion.div>
                 )}
               </AnimatePresence>
             </div>

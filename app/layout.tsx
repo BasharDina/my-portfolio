@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/sonner";
-import SmoothScroll from "./components/ui/SmoothScroll";
-import MotionProvider from "./components/ui/MotionProvider";
-import BackgroundTracker from "./components/ui/BackgroundTracker";
-import PageTransition from "./components/ui/PageTransition";
+import AppProviders from "@/app/components/ui/AppProviders";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -40,15 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden`}>
-        <MotionProvider>
-          <SmoothScroll />
-          <BackgroundTracker />
-          <div className="vignette-overlay" aria-hidden="true" />
-          <TooltipProvider delayDuration={150}>
-            <PageTransition>{children}</PageTransition>
-            <Toaster richColors position="top-right" />
-          </TooltipProvider>
-        </MotionProvider>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

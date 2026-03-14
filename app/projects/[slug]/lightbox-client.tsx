@@ -4,16 +4,24 @@ import { useMemo, useState } from "react";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 
+type GalleryImage = {
+  src: string;
+  alt?: string;
+};
+
 type GalleryGroup = {
   title: string;
-  images: string[];
+  images: GalleryImage[];
 };
 
 export default function LightboxClient({ groups }: { groups: GalleryGroup[] }) {
   const [index, setIndex] = useState<number>(-1);
 
   const flatImages = useMemo(() => groups.flatMap((group) => group.images), [groups]);
-  const slides = useMemo(() => flatImages.map((src) => ({ src })), [flatImages]);
+  const slides = useMemo(
+    () => flatImages.map((image) => ({ src: image.src })),
+    [flatImages]
+  );
 
   let runningIndex = 0;
 
@@ -44,12 +52,12 @@ export default function LightboxClient({ groups }: { groups: GalleryGroup[] }) {
               </div>
 
               <div className="columns-1 gap-4 sm:columns-2 xl:columns-3 [column-fill:_balance]">
-                {group.images.map((src, i) => {
+                {group.images.map((image, i) => {
                   const absoluteIndex = startIndex + i;
 
                   return (
                     <button
-                      key={src}
+                      key={`${group.title}-${i}-${image.src}`}
                       onClick={() => setIndex(absoluteIndex)}
                       className="group glass glass-highlight mb-4 block w-full break-inside-avoid overflow-hidden rounded-3xl border border-white/10 text-left transition hover:border-white/20"
                       aria-label={`Open image ${absoluteIndex + 1} of ${flatImages.length}`}
@@ -57,8 +65,8 @@ export default function LightboxClient({ groups }: { groups: GalleryGroup[] }) {
                     >
                       <div className="relative w-full bg-white/5">
                         <img
-                          src={src}
-                          alt={`${group.title} image ${i + 1}`}
+                          src={image.src}
+                          alt={image.alt || `${group.title} image ${i + 1}`}
                           className="block h-auto w-full transition-transform duration-300 group-hover:scale-[1.02]"
                           loading="lazy"
                         />

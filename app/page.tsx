@@ -1,31 +1,17 @@
-"use client";
-
-import { useEffect, useRef } from "react";
 import Link from "next/link";
-import Navbar from "./components/sections/Navbar";
 import Hero from "./components/sections/Hero";
 import About from "./components/sections/About";
 import Services from "./components/sections/Services";
 import ProjectsPreview from "./components/sections/ProjectsPreview";
 import Contact from "./components/sections/Contact";
-import Footer from "./components/sections/Footer";
-import { initHomeScrollTriggers } from "./components/ui/scroll-trigger";
+import HomeScrollInit from "./components/ui/HomeScrollInit";
 import { ArrowRight } from "lucide-react";
 
 export default function Home() {
-  const mainRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    const root = mainRef.current;
-    if (!root) return;
-
-    const cleanup = initHomeScrollTriggers(root);
-    return cleanup;
-  }, []);
-
   return (
-    <main ref={mainRef} className="min-h-screen">
-      <Navbar />
+    <main className="min-h-screen">
+      <HomeScrollInit />
+
 
       <div data-home-chapter="hero">
         <Hero />
@@ -81,7 +67,6 @@ export default function Home() {
         </div>
       </section>
 
-      <Footer />
     </main>
   );
 }

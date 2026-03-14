@@ -1,27 +1,68 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { CASE_STUDIES, getCaseStudy } from "@/app/data/case-studies";
+import { client } from "@/sanity/lib/client";
+import { projectBySlugQuery, projectsQuery } from "@/sanity/lib/queries";
+import { urlFor } from "@/sanity/lib/image";
 import LightboxClient from "./lightbox-client";
 
+type ProjectSection = {
+  heading: string;
+  body: string;
+};
+
+type GalleryImage = {
+  asset?: any;
+  alt?: string;
+};
+
+type GalleryGroup = {
+  title: string;
+  images: GalleryImage[];
+};
+
+type SanityProject = {
+  _id: string;
+  title: string;
+  slug?: { current: string };
+  category: string;
+  subtitle: string;
+  year?: string;
+  role?: string;
+  tools?: string[];
+  tags?: string[];
+  cover?: any;
+  sections?: ProjectSection[];
+  galleryGroups?: GalleryGroup[];
+};
+
 export async function generateStaticParams() {
-  return CASE_STUDIES.map((p) => ({ slug: p.slug }));
+  const projects: SanityProject[] = await client.fetch(projectsQuery);
+
+  return projects
+    .filter((project) => project.slug?.current)
+    .map((project) => ({
+      slug: project.slug!.current,
+    }));
 }
 
 export async function generateMetadata(
   props: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
   const { slug } = await props.params;
-  const p = getCaseStudy(slug);
-  if (!p) return { title: "Project not found" };
+  const project: SanityProject | null = await client.fetch(projectBySlugQuery, { slug });
+
+  if (!project) return { title: "Project not found" };
+
+  const imageUrl = project.cover ? urlFor(project.cover).width(1200).height(630).url() : undefined;
 
   return {
-    title: `${p.title} — Bashar Emad`,
-    description: p.subtitle,
+    title: `${project.title} — Bashar Emad`,
+    description: project.subtitle,
     openGraph: {
-      title: `${p.title} — Bashar Emad`,
-      description: p.subtitle,
-      images: [{ url: p.cover }],
+      title: `${project.title} — Bashar Emad`,
+      description: project.subtitle,
+      images: imageUrl ? [{ url: imageUrl }] : [],
     },
   };
 }
@@ -30,21 +71,10 @@ export default async function ProjectCaseStudyPage(
   props: { params: Promise<{ slug: string }> }
 ) {
   const { slug } = await props.params;
-  const p = getCaseStudy(slug);
-  const currentIndex = CASE_STUDIES.findIndex((item) => item.slug === slug);
-  const prevProject = currentIndex > 0 ? CASE_STUDIES[currentIndex - 1] : null;
-  const nextProject =
-    currentIndex >= 0 && currentIndex < CASE_STUDIES.length - 1
-      ? CASE_STUDIES[currentIndex + 1]
-      : null;
-  const relatedProjects = CASE_STUDIES.filter(
-    (item) =>
-      item.slug !== slug &&
-      (item.category === p?.category ||
-        item.tags?.some((tag) => p?.tags?.includes(tag)))
-  ).slice(0, 3);
+  const project: SanityProject | null = await client.fetch(projectBySlugQuery, { slug });
+  const allProjects: SanityProject[] = await client.fetch(projectsQuery);
 
-  if (!p) {
+  if (!project) {
     return (
       <div className="mx-auto max-w-5xl px-4 py-20 text-white">
         <h1 className="text-2xl font-bold">Project not found</h1>
@@ -54,6 +84,39 @@ export default async function ProjectCaseStudyPage(
       </div>
     );
   }
+
+  const currentIndex = allProjects.findIndex(
+    (item) => item.slug?.current === project.slug?.current
+  );
+
+  const prevProject = currentIndex > 0 ? allProjects[currentIndex - 1] : null;
+  const nextProject =
+    currentIndex >= 0 && currentIndex < allProjects.length - 1
+      ? allProjects[currentIndex + 1]
+      : null;
+
+  const relatedProjects = allProjects
+    .filter(
+      (item) =>
+        item.slug?.current !== project.slug?.current &&
+        (item.category === project.category ||
+          item.tags?.some((tag) => project.tags?.includes(tag)))
+    )
+    .slice(0, 3);
+
+  const coverUrl = project.cover
+    ? urlFor(project.cover).width(1600).height(1000).url()
+    : null;
+
+  const galleryGroups =
+    project.galleryGroups?.map((group) => ({
+      title: group.title,
+      images:
+        group.images?.map((image) => ({
+          src: image.asset ? urlFor(image).url() : "",
+          alt: image.alt,
+        })).filter((image) => image.src) ?? [],
+    })) ?? [];
 
   return (
     <main className="mx-auto max-w-[1320px] px-4 py-10 text-white md:py-12">
@@ -70,7 +133,7 @@ export default async function ProjectCaseStudyPage(
             Projects
           </Link>
           <span className="text-white/30">/</span>
-          <span className="text-white">{p.title}</span>
+          <span className="text-white">{project.title}</span>
         </nav>
       </div>
 
@@ -93,39 +156,42 @@ export default async function ProjectCaseStudyPage(
         <div className="glass glass-highlight rounded-3xl border border-white/10 p-7">
           <div className="flex flex-wrap items-center gap-2 text-xs text-white/70">
             <span className="rounded-full border border-[#40FF00]/20 bg-[#40FF00]/10 px-3 py-1 text-[#40FF00]">
-              {p.category}
+              {project.category}
             </span>
-            {p.year ? (
+
+            {project.year ? (
               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
-                {p.year}
+                {project.year}
               </span>
             ) : null}
-            {p.role ? (
+
+            {project.role ? (
               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1">
-                {p.role}
+                {project.role}
               </span>
             ) : null}
           </div>
 
           <h1 className="mt-4 text-3xl font-extrabold tracking-tight md:text-5xl">
-            {p.title}
+            {project.title}
           </h1>
+
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/72 md:text-base">
-            {p.subtitle}
+            {project.subtitle}
           </p>
 
-          {p.tools?.length ? (
+          {project.tools?.length ? (
             <div className="mt-5">
               <p className="mb-2 text-[11px] uppercase tracking-[0.15em] text-white/50">
                 Tools Used
               </p>
               <div className="flex flex-wrap gap-2">
-                {p.tools.map((t) => (
+                {project.tools.map((tool) => (
                   <span
-                    key={t}
+                    key={tool}
                     className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/80"
                   >
-                    {t}
+                    {tool}
                   </span>
                 ))}
               </div>
@@ -135,60 +201,66 @@ export default async function ProjectCaseStudyPage(
 
         <div className="glass glass-highlight overflow-hidden rounded-3xl border border-white/10">
           <div className="relative aspect-[16/10] w-full">
-            <Image
-              src={p.cover}
-              alt={p.title}
-              fill
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover"
-              priority
-            />
+            {coverUrl ? (
+              <Image
+                src={coverUrl}
+                alt={project.title}
+                fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+                priority
+              />
+            ) : null}
           </div>
         </div>
       </section>
 
-      <section className="mt-10 grid gap-5 lg:grid-cols-3">
-        {p.sections.map((s, i) => (
-          <div
-            key={s.heading}
-            className="glass glass-highlight rounded-3xl border border-white/10 p-6"
-          >
-            <div className="mb-3 flex items-center gap-3">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#40FF00]/15 text-xs font-bold text-[#40FF00]">
-                {i + 1}
-              </span>
-              <h3 className="text-lg font-bold tracking-tight">{s.heading}</h3>
+      {project.sections?.length ? (
+        <section className="mt-10 grid gap-5 lg:grid-cols-3">
+          {project.sections.map((section, i) => (
+            <div
+              key={`${section.heading}-${i}`}
+              className="glass glass-highlight rounded-3xl border border-white/10 p-6"
+            >
+              <div className="mb-3 flex items-center gap-3">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#40FF00]/15 text-xs font-bold text-[#40FF00]">
+                  {i + 1}
+                </span>
+                <h3 className="text-lg font-bold tracking-tight">{section.heading}</h3>
+              </div>
+              <p className="text-sm leading-relaxed text-white/72">{section.body}</p>
             </div>
-            <p className="text-sm leading-relaxed text-white/72">{s.body}</p>
-          </div>
-        ))}
-      </section>
+          ))}
+        </section>
+      ) : null}
 
-      <section className="mt-11">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">Gallery</h2>
-            <p className="mt-1 text-sm text-white/60">
-              Work grouped by client / brand
+      {galleryGroups.length ? (
+        <section className="mt-11">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Gallery</h2>
+              <p className="mt-1 text-sm text-white/60">
+                Work grouped by client / brand
+              </p>
+            </div>
+
+            <p className="text-sm text-white/60">
+              Click any image to preview in lightbox
             </p>
           </div>
 
-          <p className="text-sm text-white/60">
-            Click any image to preview in lightbox
-          </p>
-        </div>
-
-        <LightboxClient groups={p.galleryGroups} />
-      </section>
+          <LightboxClient groups={galleryGroups} />
+        </section>
+      ) : null}
 
       <section className="mt-10 grid gap-5 lg:grid-cols-2">
         <div className="glass glass-highlight rounded-3xl border border-white/10 p-5 md:p-6">
           <div className="text-xs uppercase tracking-[0.18em] text-white/55">
             Previous
           </div>
-          {prevProject ? (
+          {prevProject?.slug?.current ? (
             <Link
-              href={`/projects/${prevProject.slug}`}
+              href={`/projects/${prevProject.slug.current}`}
               className="mt-2 inline-block text-lg font-bold tracking-tight transition-colors hover:text-[#40FF00]"
             >
               ← {prevProject.title}
@@ -204,9 +276,9 @@ export default async function ProjectCaseStudyPage(
           <div className="text-xs uppercase tracking-[0.18em] text-white/55">
             Next
           </div>
-          {nextProject ? (
+          {nextProject?.slug?.current ? (
             <Link
-              href={`/projects/${nextProject.slug}`}
+              href={`/projects/${nextProject.slug.current}`}
               className="mt-2 inline-block text-lg font-bold tracking-tight transition-colors hover:text-[#40FF00]"
             >
               {nextProject.title} →
@@ -223,34 +295,42 @@ export default async function ProjectCaseStudyPage(
         <section className="mt-10">
           <h2 className="text-2xl font-bold tracking-tight">Related Projects</h2>
           <div className="mt-4 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {relatedProjects.map((item) => (
-              <Link
-                key={item.slug}
-                href={`/projects/${item.slug}`}
-                className="group glass glass-highlight glow-hover overflow-hidden rounded-3xl border border-white/10"
-              >
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-white/5">
-                  <Image
-                    src={item.cover}
-                    alt={item.title}
-                    fill
-                    sizes="(max-width: 1024px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-                  />
-                </div>
-                <div className="p-5">
-                  <div className="text-xs uppercase tracking-[0.16em] text-white/55">
-                    {item.category}
+            {relatedProjects.map((item) => {
+              const relatedCoverUrl = item.cover
+                ? urlFor(item.cover).width(1200).height(900).url()
+                : null;
+
+              return (
+                <Link
+                  key={item._id}
+                  href={`/projects/${item.slug?.current}`}
+                  className="group glass glass-highlight glow-hover overflow-hidden rounded-3xl border border-white/10"
+                >
+                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-white/5">
+                    {relatedCoverUrl ? (
+                      <Image
+                        src={relatedCoverUrl}
+                        alt={item.title}
+                        fill
+                        sizes="(max-width: 1024px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                      />
+                    ) : null}
                   </div>
-                  <h3 className="mt-2 text-lg font-bold tracking-tight">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/70">
-                    {item.subtitle}
-                  </p>
-                </div>
-              </Link>
-            ))}
+                  <div className="p-5">
+                    <div className="text-xs uppercase tracking-[0.16em] text-white/55">
+                      {item.category}
+                    </div>
+                    <h3 className="mt-2 text-lg font-bold tracking-tight">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/70">
+                      {item.subtitle}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
       ) : null}

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 type NavItem = { href: string; label: string };
 
@@ -109,7 +110,7 @@ export default function Navbar() {
   }, [pathname]);
 
   return (
-    <header className="sticky top-0 z-50">
+    <header className="fixed inset-x-0 top-0 z-[100]">
       <div className="h-[2px] w-full">
         <div
           className="h-full w-full opacity-90"
@@ -146,7 +147,7 @@ export default function Navbar() {
               className="relative rounded-full border border-white/10 bg-white/[0.03] px-2 py-1 backdrop-blur-md"
             >
               <span
-                className="pointer-events-none absolute top-1 bottom-1 rounded-full transition-all duration-300 ease-out"
+                className="pointer-events-none absolute bottom-1 top-1 rounded-full transition-all duration-300 ease-out"
                 style={{
                   left: indicator.left,
                   width: indicator.width,
@@ -178,23 +179,22 @@ export default function Navbar() {
               </nav>
             </div>
 
-            <Link
-              href="/#contact"
-              className="btn-lux btn-lux-secondary btn-lux-sm"
-            >
-              Hire me
-            </Link>
+            <Button asChild variant="secondary" size="sm">
+              <Link href="/#contact">Hire me</Link>
+            </Button>
           </div>
 
           <div className="flex items-center gap-3 md:hidden">
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
+              className="px-4"
               onClick={() => setMobileOpen((s) => !s)}
-              className="btn-lux btn-lux-secondary btn-lux-sm px-4"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
               aria-expanded={mobileOpen}
             >
               {mobileOpen ? "✕" : "☰"}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -223,13 +223,11 @@ export default function Navbar() {
                   </Link>
                 ))}
 
-                <Link
-                  href="/#contact"
-                  onClick={() => setMobileOpen(false)}
-                  className="btn-lux btn-lux-primary btn-lux-sm mt-2 w-full"
-                >
-                  Hire me
-                </Link>
+                <Button asChild size="sm" className="mt-2 w-full">
+                  <Link href="/#contact" onClick={() => setMobileOpen(false)}>
+                    Hire me
+                  </Link>
+                </Button>
               </nav>
             </div>
           </div>

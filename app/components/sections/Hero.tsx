@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { Sparkles, Layout, Palette, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Hero() {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -78,9 +79,55 @@ export default function Hero() {
           ease: "sine.inOut",
         });
       }
+
+      const ctas = gsap.utils.toArray<HTMLElement>(".hero-cta-magnetic");
+      ctas.forEach((el) => {
+        const strength = 0.16;
+
+        const enter = () => gsap.to(el, { scale: 1.02, duration: 0.24, ease: "power3.out" });
+        const leave = () => {
+          gsap.to(el, { x: 0, y: 0, scale: 1, duration: 0.45, ease: "elastic.out(1, 0.5)" });
+        };
+
+        const move = (e: MouseEvent) => {
+          const rect = el.getBoundingClientRect();
+          const relX = e.clientX - rect.left;
+          const relY = e.clientY - rect.top;
+          const x = relX - rect.width / 2;
+          const y = relY - rect.height / 2;
+
+          gsap.to(el, { x: x * strength, y: y * strength, duration: 0.28, ease: "power2.out" });
+        };
+
+        const down = () => gsap.to(el, { scale: 0.975, duration: 0.12, ease: "power2.out" });
+        const up = () => gsap.to(el, { scale: 1.02, duration: 0.16, ease: "power2.out" });
+
+        el.addEventListener("mouseenter", enter);
+        el.addEventListener("mousemove", move);
+        el.addEventListener("mouseleave", leave);
+        el.addEventListener("mousedown", down);
+        el.addEventListener("mouseup", up);
+
+        (el as HTMLElement & { __heroCleanup?: () => void }).__heroCleanup = () => {
+          el.removeEventListener("mouseenter", enter);
+          el.removeEventListener("mousemove", move);
+          el.removeEventListener("mouseleave", leave);
+          el.removeEventListener("mousedown", down);
+          el.removeEventListener("mouseup", up);
+        };
+      });
     }, section);
 
-    return () => ctx.revert();
+    return () => {
+      const node = sectionRef.current;
+      if (node) {
+        node.querySelectorAll<HTMLElement>(".hero-cta-magnetic").forEach((el) => {
+          const cleanup = (el as HTMLElement & { __heroCleanup?: () => void }).__heroCleanup;
+          cleanup?.();
+        });
+      }
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -146,28 +193,24 @@ export default function Hero() {
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Link
-              href="/projects"
-              className="hero-cta btn-lux btn-lux-primary btn-lux-md"
-            >
-              <span>View Projects</span>
-              <ArrowRight size={16} />
-            </Link>
+            <Button asChild size="lg" className="hero-cta hero-cta-magnetic">
+              <Link href="/projects">
+                <span className="inline-flex items-center gap-2 text-black">
+                  View Projects
+                  <ArrowRight size={16} className="text-black" />
+                </span>
+              </Link>
+            </Button>
 
-            <a
-              href="/cv.pdf"
-              download
-              className="hero-cta btn-lux btn-lux-secondary btn-lux-md"
-            >
-              <span>Download CV</span>
-            </a>
+            <Button asChild variant="secondary" size="lg" className="hero-cta hero-cta-magnetic">
+              <a href="/cv.pdf" download>
+                Download CV
+              </a>
+            </Button>
 
-            <Link
-              href="/#contact"
-              className="hero-cta btn-lux btn-lux-secondary btn-lux-md"
-            >
-              <span>Contact</span>
-            </Link>
+            <Button asChild variant="secondary" size="lg" className="hero-cta hero-cta-magnetic">
+              <Link href="/#contact">Contact</Link>
+            </Button>
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-4 text-sm text-white/80">

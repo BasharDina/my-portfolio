@@ -1,40 +1,35 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import dynamic from "next/dynamic";
-
-import Navbar from "../sections/Navbar";
-import Footer from "../sections/Footer";
-import Preloader from "./Preloader";
+import { useEffect, useRef, useState } from "react";
 import { setScrollState, useScrollState } from "./scroll-state";
 import Intro from "./sections/Intro";
-import PosterShowcase from "./sections/PosterShowcase";
 import Showcase from "./sections/Showcase";
 import FinalCTA from "./sections/FinalCTA";
-
-const ExperienceCanvas = dynamic(() => import("./ExperienceCanvas"), {
-  ssr: false,
-  loading: () => <div className="absolute inset-0 bg-[#030505]" />,
-});
+import Preloader from "./Preloader";
 
 function useReducedMotion() {
-  const media =
-    typeof window !== "undefined"
-      ? window.matchMedia("(prefers-reduced-motion: reduce)")
-      : null;
+  const [reduced, setReduced] = useState(false);
 
-  return media?.matches ?? false;
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduced(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  return reduced;
 }
 
 export default function ExperienceRoot() {
   const reducedMotion = useReducedMotion();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const scrollState = useScrollState();
+  const [activeScene, setActiveScene] = useState(0);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-
-    document.documentElement.classList.remove("has-cursor");
 
     const onScroll = () => {
       const doc = document.documentElement;
@@ -50,7 +45,6 @@ export default function ExperienceRoot() {
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
-      document.documentElement.classList.remove("has-cursor");
     };
   }, []);
 
@@ -78,6 +72,7 @@ export default function ExperienceRoot() {
         ) as 0 | 1 | 2;
 
         setScrollState({ activeScene: active });
+        setActiveScene(active);
       },
       {
         threshold: [0.25, 0.4, 0.6],
@@ -86,47 +81,49 @@ export default function ExperienceRoot() {
     );
 
     sections.forEach((section) => observer.observe(section));
-
     return () => observer.disconnect();
   }, []);
 
   return (
-    <div ref={rootRef} className="relative min-h-screen bg-black text-white">
-      <div className="fixed left-0 top-0 z-[90] h-[2px] w-full bg-white/10">
-        <div
-          className="h-full bg-[#40FF00] transition-[width] duration-100"
-          style={{ width: `${scrollState.progress * 100}%` }}
-        />
-      </div>
-
-      <div className="relative z-[100]">
-        <Navbar />
-      </div>
-
+    <div ref={rootRef} className="relative min-h-screen text-white">
       <Preloader />
 
-      <div className="fixed inset-0 z-0">
-        <ExperienceCanvas />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.18),rgba(0,0,0,0.5))]" />
+      <div className="fixed inset-0 z-0 overflow-hidden">
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background: `
+              radial-gradient(700px 500px at 72% 36%, rgba(64, 255, 0, 0.12), transparent 62%),
+              radial-gradient(660px 460px at 34% 65%, rgba(124, 58, 237, 0.14), transparent 64%),
+              radial-gradient(980px 580px at 50% -18%, rgba(255, 255, 255, 0.05), transparent 70%),
+              linear-gradient(to bottom, rgba(0,0,0,0.10), rgba(0,0,0,0.24))
+            `,
+          }}
+        />
+
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.08] mix-blend-soft-light"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.15' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.22'/%3E%3C/svg%3E")`,
+          }}
+        />
+
+        <div className="pointer-events-none absolute left-1/2 top-[42%] h-[680px] w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(64,255,0,0.12)_0%,rgba(124,58,237,0.10)_42%,transparent_72%)] blur-3xl" />
       </div>
 
-<main className="relative z-20 pt-14 sm:pt-16">
-          <div id="exp-scene-0">
+      <div className="relative z-20">
+        <div data-exp-scene data-exp-scene-index="0">
           <Intro reducedMotion={reducedMotion} />
         </div>
 
-        <PosterShowcase />
-
-        <div id="exp-scene-1">
+        <div data-exp-scene data-exp-scene-index="1">
           <Showcase reducedMotion={reducedMotion} />
         </div>
 
-        <div id="exp-scene-2">
+        <div data-exp-scene data-exp-scene-index="2">
           <FinalCTA reducedMotion={reducedMotion} />
         </div>
-
-        <Footer />
-      </main>
+      </div>
     </div>
   );
 }
