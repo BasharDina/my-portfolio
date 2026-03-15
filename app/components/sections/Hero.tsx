@@ -164,7 +164,7 @@ export default function Hero() {
       </div>
 
       <div className="mx-auto grid max-w-[1320px] gap-10 px-3 pt-0 pb-10 sm:px-4 md:grid-cols-2 md:items-start md:gap-12 md:pt-1 md:pb-16 lg:px-5">
-        <div className="hero-content max-w-[620px]">
+        <div className="hero-content max-w-[680px]">
           <div className="hero-eyebrow inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/35 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-xl">
             <span className="h-2 w-2 rounded-full bg-[#40FF00]" />
             Available for freelance work
@@ -180,23 +180,23 @@ export default function Hero() {
             I combine strong visual creativity with AI tools to create impactful and modern design solutions.
           </p>
 
-          <div className="mt-7 grid grid-cols-1 gap-3 text-sm text-white/85 sm:grid-cols-2 xl:grid-cols-4">
-            <div className="hero-feature flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 backdrop-blur-sm">
+          <div className="mt-7 flex flex-wrap gap-3 text-sm text-white/85 xl:flex-nowrap">
+            <div className="hero-feature flex min-w-fit items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 whitespace-nowrap backdrop-blur-sm">
               <Sparkles size={16} className="text-[#40FF00]" />
               Premium visuals
             </div>
 
-            <div className="hero-feature flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 backdrop-blur-sm">
+            <div className="hero-feature flex min-w-fit items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 whitespace-nowrap backdrop-blur-sm">
               <Layout size={16} className="text-[#40FF00]" />
               UI/UX systems
             </div>
 
-            <div className="hero-feature flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 backdrop-blur-sm">
+            <div className="hero-feature flex min-w-fit items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 whitespace-nowrap backdrop-blur-sm">
               <Palette size={16} className="text-[#40FF00]" />
               Branding & identity
             </div>
 
-            <div className="hero-feature flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 backdrop-blur-sm">
+            <div className="hero-feature flex min-w-fit items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 whitespace-nowrap backdrop-blur-sm">
               <Package size={16} className="text-[#40FF00]" />
               Print & Packaging
             </div>
