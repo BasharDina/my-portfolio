@@ -1,5 +1,5 @@
 "use client";
-
+import { trackEvent } from "@/app/lib/gtag";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
@@ -193,24 +193,48 @@ export default function Hero() {
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Button asChild size="lg" className="hero-cta hero-cta-magnetic">
-              <Link href="/projects">
-                <span className="inline-flex items-center gap-2 text-black">
-                  View Projects
-                  <ArrowRight size={16} className="text-black" />
-                </span>
-              </Link>
-            </Button>
+           <Button asChild size="lg" className="hero-cta hero-cta-magnetic">
+  <Link
+    href="/projects"
+    onClick={() =>
+      trackEvent("view_projects_click", {
+        location: "hero",
+      })
+    }
+  >
+    <span className="inline-flex items-center gap-2 text-black">
+      View Projects
+      <ArrowRight size={16} className="text-black" />
+    </span>
+  </Link>
+</Button>
 
-            <Button asChild variant="secondary" size="lg" className="hero-cta hero-cta-magnetic">
-              <a href="/cv.pdf" download>
-                Download CV
-              </a>
-            </Button>
+<Button asChild variant="secondary" size="lg" className="hero-cta hero-cta-magnetic">
+  <a
+    href="/cv.pdf"
+    download
+    onClick={() =>
+      trackEvent("cv_download", {
+        location: "hero",
+      })
+    }
+  >
+    Download CV
+  </a>
+</Button>
 
-            <Button asChild variant="secondary" size="lg" className="hero-cta hero-cta-magnetic">
-              <Link href="/#contact">Contact</Link>
-            </Button>
+<Button asChild variant="secondary" size="lg" className="hero-cta hero-cta-magnetic">
+  <Link
+    href="/#contact"
+    onClick={() =>
+      trackEvent("hire_me_click", {
+        location: "hero",
+      })
+    }
+  >
+    Contact
+  </Link>
+</Button>
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-4 text-sm text-white/80">

@@ -1,5 +1,5 @@
 "use client";
-
+import { trackEvent } from "@/app/lib/gtag";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -178,10 +178,19 @@ export default function Navbar() {
                 ))}
               </nav>
             </div>
-
-            <Button asChild variant="secondary" size="sm">
-              <Link href="/#contact">Hire me</Link>
-            </Button>
+<Button asChild size="sm" className="mt-2 w-full">
+  <Link
+    href="/#contact"
+    onClick={() => {
+      setMobileOpen(false);
+      trackEvent("hire_me_click", {
+        location: "navbar_mobile",
+      });
+    }}
+  >
+    Hire me
+  </Link>
+</Button>
           </div>
 
           <div className="flex items-center gap-3 md:hidden">

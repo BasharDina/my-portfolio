@@ -1,5 +1,5 @@
 "use client";
-
+import { trackEvent } from "@/app/lib/gtag";
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, CheckCircle, AlertCircle, Mail, MessageSquare, User } from "lucide-react";
@@ -30,6 +30,9 @@ export default function Contact() {
 
       if (!res.ok) throw new Error("Failed");
       setStatus("sent");
+      trackEvent("contact_form_submit", {
+  location: "contact_section",
+});
       formRef.current?.reset();
     } catch {
       setStatus("error");
