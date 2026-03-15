@@ -31,7 +31,6 @@ export default function AppProviders({
       <TooltipProvider delayDuration={150}>
         <Navbar />
 
-        {/* spacer under fixed navbar */}
         <div className="h-[78px] sm:h-[86px]" />
 
         <PageTransition>{children}</PageTransition>

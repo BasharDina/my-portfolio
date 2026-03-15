@@ -18,13 +18,13 @@ export default function About() {
         <div className="mx-auto max-w-[1320px] px-3 sm:px-4 lg:px-5">
           <div className="flex items-end justify-between gap-6">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight">Our happy customers</h2>
+              <h2 className="text-3xl font-bold tracking-tight">My happy customers</h2>
               <p className="mt-2 text-sm text-white/70">
                 Feedback focused on quality, speed, and premium output.
               </p>
             </div>
             <Badge variant="secondary" className="hidden sm:inline-flex glass">
-              ★ Rated 5.0/5
+              ★ Rated 4.8/5
             </Badge>
           </div>
 

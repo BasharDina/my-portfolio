@@ -61,7 +61,7 @@ export default function Contact() {
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
                     <Mail className="h-4 w-4 text-[#40FF00]" />
                   </div>
-                  <span>bashar@example.com</span>
+                  <span>basharabushaban1999@gmail.com</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-white/70">
                   <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/[0.06]">
