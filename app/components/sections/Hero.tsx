@@ -1,10 +1,10 @@
 "use client";
-import { trackEvent } from "@/app/lib/gtag";
+
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { Sparkles, Layout, Palette, ArrowRight } from "lucide-react";
+import { Sparkles, Layout, Palette, ArrowRight, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Hero() {
@@ -164,7 +164,7 @@ export default function Hero() {
       </div>
 
       <div className="mx-auto grid max-w-[1320px] gap-10 px-3 pt-0 pb-10 sm:px-4 md:grid-cols-2 md:items-start md:gap-12 md:pt-1 md:pb-16 lg:px-5">
-        <div className="hero-content max-w-[590px]">
+        <div className="hero-content max-w-[620px]">
           <div className="hero-eyebrow inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/35 px-4 py-2 text-sm font-medium text-white/90 backdrop-blur-xl">
             <span className="h-2 w-2 rounded-full bg-[#40FF00]" />
             Available for freelance work
@@ -175,81 +175,69 @@ export default function Hero() {
             <span className="hero-title-line block will-change-transform gradient-text">Emad</span>
           </h1>
 
-          <p className="hero-subhead mt-5 max-w-[58ch] text-base leading-relaxed text-white/85 sm:text-lg">
-            Senior Graphic Designer crafting premium visuals and clean UI/UX—turning chaos into
-            clarity with brand systems, interfaces, and motion-ready assets.
+          <p className="hero-subhead mt-5 max-w-[62ch] text-base leading-relaxed text-white/85 sm:text-lg">
+            Senior Graphic Designer specializing in social media, print, packaging, and branding.
+            I combine strong visual creativity with AI tools to create impactful and modern design solutions.
           </p>
 
-          <div className="mt-7 grid grid-cols-1 gap-3 text-sm text-white/85 sm:grid-cols-3">
+          <div className="mt-7 grid grid-cols-1 gap-3 text-sm text-white/85 sm:grid-cols-2 xl:grid-cols-4">
             <div className="hero-feature flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 backdrop-blur-sm">
-              <Sparkles size={16} className="text-[#40FF00]" /> Premium visuals
+              <Sparkles size={16} className="text-[#40FF00]" />
+              Premium visuals
             </div>
+
             <div className="hero-feature flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 backdrop-blur-sm">
-              <Layout size={16} className="text-[#40FF00]" /> UI/UX systems
+              <Layout size={16} className="text-[#40FF00]" />
+              UI/UX systems
             </div>
+
             <div className="hero-feature flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 backdrop-blur-sm">
-              <Palette size={16} className="text-[#40FF00]" /> Branding & identity
+              <Palette size={16} className="text-[#40FF00]" />
+              Branding & identity
+            </div>
+
+            <div className="hero-feature flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2 backdrop-blur-sm">
+              <Package size={16} className="text-[#40FF00]" />
+              Print & Packaging
             </div>
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-           <Button asChild size="lg" className="hero-cta hero-cta-magnetic">
-  <Link
-    href="/projects"
-    onClick={() =>
-      trackEvent("view_projects_click", {
-        location: "hero",
-      })
-    }
-  >
-    <span className="inline-flex items-center gap-2 text-black">
-      View Projects
-      <ArrowRight size={16} className="text-black" />
-    </span>
-  </Link>
-</Button>
+            <Button asChild size="lg" className="hero-cta hero-cta-magnetic">
+              <Link href="/projects">
+                <span className="inline-flex items-center gap-2 text-black">
+                  View Projects
+                  <ArrowRight size={16} className="text-black" />
+                </span>
+              </Link>
+            </Button>
 
-<Button asChild variant="secondary" size="lg" className="hero-cta hero-cta-magnetic">
-  <a
-    href="/cv.pdf"
-    download
-    onClick={() =>
-      trackEvent("cv_download", {
-        location: "hero",
-      })
-    }
-  >
-    Download CV
-  </a>
-</Button>
+            <Button asChild variant="secondary" size="lg" className="hero-cta hero-cta-magnetic">
+              <a href="/cv.pdf" download>
+                Download CV
+              </a>
+            </Button>
 
-<Button asChild variant="secondary" size="lg" className="hero-cta hero-cta-magnetic">
-  <Link
-    href="/#contact"
-    onClick={() =>
-      trackEvent("hire_me_click", {
-        location: "hero",
-      })
-    }
-  >
-    Contact
-  </Link>
-</Button>
+            <Button asChild variant="secondary" size="lg" className="hero-cta hero-cta-magnetic">
+              <Link href="/#contact">Contact</Link>
+            </Button>
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-4 text-sm text-white/80">
             <span className="text-white/70">Find me on:</span>
+
             <a
               className="hero-social rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-white/90 transition hover:border-[#40FF00]/50 hover:bg-black/45"
-              href="#"
+              href="https://www.linkedin.com/in/bashar-emad-b10959391?utm_source=share_via&utm_content=profile&utm_medium=member_ios"
               target="_blank"
               rel="noreferrer"
             >
               in <span className="font-semibold text-white">LinkedIn</span>
             </a>
+
             <a
               className="hero-social rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-white/90 transition hover:border-[#40FF00]/50 hover:bg-black/45"
-              href="#"
+              href="https://www.upwork.com/freelancers/~011e85b2b4e8f06247?companyReference=1323252692283457537&mp_source=share"
               target="_blank"
               rel="noreferrer"
             >

@@ -1,91 +1,120 @@
 "use client";
 
-import { Layout, Palette, Sparkles, Check, ArrowUpRight } from "lucide-react";
+import { Megaphone, Palette, Package, Check, ArrowUpRight } from "lucide-react";
 import Reveal from "../ui/Reveal";
-import { Stagger, StaggerItem } from "../ui/Stagger";
 
-const SERVICES = [
+const services = [
   {
-    title: "UI/UX Design",
-    icon: Layout,
-    bullets: ["User research & flows", "Wireframes to high-fidelity UI", "Accessible responsive layouts"],
-    deliverables: ["Figma design file", "Interactive prototype", "UI kit + style guide"],
+    icon: Megaphone,
+    title: "Social Media Design",
+    points: [
+      "Creative campaign visuals",
+      "Platform-ready post systems",
+      "Consistent branded content",
+    ],
+    deliverables: [
+      "Instagram & Facebook posts",
+      "Story and ad creatives",
+      "Reusable content templates",
+    ],
   },
   {
-    title: "Branding",
     icon: Palette,
-    bullets: ["Strategic visual direction", "Logo and identity system", "Consistent cross-platform look"],
-    deliverables: ["Primary/secondary logo pack", "Color + typography system", "Brand guidelines PDF"],
+    title: "Branding & Identity",
+    points: [
+      "Logo and visual identity design",
+      "Color and typography systems",
+      "Clear and modern brand direction",
+    ],
+    deliverables: [
+      "Logo package",
+      "Brand identity system",
+      "Basic brand guidelines",
+    ],
   },
   {
-    title: "Motion",
-    icon: Sparkles,
-    bullets: ["Story-driven motion concepts", "Smooth micro-interactions", "Social and product animations"],
-    deliverables: ["Animation source files", "Export-ready assets", "Motion usage guidance"],
+    icon: Package,
+    title: "Print & Packaging",
+    points: [
+      "Packaging concepts and layouts",
+      "Print-ready marketing materials",
+      "Clean production-focused execution",
+    ],
+    deliverables: [
+      "Packaging design",
+      "Flyers, brochures, and posters",
+      "Print-ready export files",
+    ],
   },
 ];
 
 export default function Services() {
   return (
-<section id="services" className="py-12 sm:py-14">
-        <Reveal>
+    <section id="services" className="py-20 sm:py-24">
+      <Reveal>
         <div className="mx-auto max-w-[1320px] px-3 sm:px-4 lg:px-5">
-          <div className="mb-10 sm:mb-12">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#40FF00]">What I Offer</p>
-            <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Premium Creative Services</h2>
-            <p className="mt-3 max-w-2xl text-sm text-white/70 sm:text-base">
-              End-to-end craft across interface design, branding, and motion — built to look sharp and perform.
+          <div className="max-w-3xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">
+              What I offer
+            </p>
+
+            <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+              Premium Creative Services
+            </h2>
+
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/70 sm:text-base">
+              Design services tailored for brands that need strong visuals, clear identity,
+              and polished execution across digital and print touchpoints.
             </p>
           </div>
 
-          <Stagger stagger={0.12}>
-            <div className="grid gap-5 sm:gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {SERVICES.map((service) => {
-                const Icon = service.icon;
+          <div className="mt-10 grid gap-6 lg:grid-cols-3">
+            {services.map((service) => {
+              const Icon = service.icon;
 
-                return (
-                  <StaggerItem key={service.title}>
-                    <article className="group glass glass-highlight glow-hover relative overflow-hidden rounded-3xl border border-white/10 p-6 sm:p-7">
-                      {/* Hover glow */}
-                      <div
-                        className="pointer-events-none absolute -top-16 -right-14 h-44 w-44 rounded-full opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-90"
-                        style={{ background: "radial-gradient(circle, rgba(64,255,0,0.25), rgba(124,58,237,0.18), transparent 65%)" }}
-                      />
+              return (
+                <div
+                  key={service.title}
+                  className="glass glass-highlight rounded-[2rem] border border-white/10 p-8"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05]">
+                      <Icon className="h-6 w-6 text-[#40FF00]" />
+                    </div>
 
-                      <div className="relative z-10 flex items-center justify-between">
-                        <div className="glass-strong rounded-2xl p-2.5">
-                          <Icon className="h-5 w-5 text-[#40FF00]" />
-                        </div>
-                        <ArrowUpRight className="h-4 w-4 text-white/50 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#40FF00]" />
+                    <ArrowUpRight className="h-5 w-5 text-white/45" />
+                  </div>
+
+                  <h3 className="mt-8 text-2xl font-bold tracking-tight sm:text-[2rem]">
+                    {service.title}
+                  </h3>
+
+                  <div className="mt-6 space-y-4">
+                    {service.points.map((point) => (
+                      <div key={point} className="flex items-start gap-3 text-white/78">
+                        <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#40FF00]/10">
+                          <Check className="h-4 w-4 text-[#40FF00]" />
+                        </span>
+                        <span className="text-base leading-relaxed">{point}</span>
                       </div>
+                    ))}
+                  </div>
 
-                      <h3 className="relative z-10 mt-5 text-xl font-semibold">{service.title}</h3>
+                  <div className="mt-8 rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-6">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">
+                      Deliverables
+                    </p>
 
-                      <ul className="relative z-10 mt-4 space-y-2.5">
-                        {service.bullets.map((item) => (
-                          <li key={item} className="flex items-start gap-2.5 text-sm text-white/75">
-                            <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#40FF00]/15">
-                              <Check className="h-3.5 w-3.5 text-[#40FF00]" />
-                            </span>
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-
-                      <div className="relative z-10 mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-white/55">Deliverables</p>
-                        <ul className="mt-2.5 space-y-1.5 text-sm text-white/75">
-                          {service.deliverables.map((item) => (
-                            <li key={item}>• {item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </article>
-                  </StaggerItem>
-                );
-              })}
-            </div>
-          </Stagger>
+                    <ul className="mt-4 space-y-3 text-sm leading-relaxed text-white/72">
+                      {service.deliverables.map((item) => (
+                        <li key={item}>• {item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </Reveal>
     </section>

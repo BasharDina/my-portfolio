@@ -1,65 +1,106 @@
 "use client";
 
 import Reveal from "../ui/Reveal";
-import {
-  Figma,
-  Image as ImageIcon,
-  PenTool,
-  Film,
-  Video,
-  Box,
-} from "lucide-react";
+import { Star } from "lucide-react";
 
-const TOOLS = [
-  { name: "Figma", icon: Figma },
-  { name: "Photoshop", icon: ImageIcon },
-  { name: "Illustrator", icon: PenTool },
-  { name: "After Effects", icon: Film },
-  { name: "Premiere Pro", icon: Video },
-  { name: "Blender", icon: Box },
+const testimonials = [
+  {
+    initials: "AR",
+    name: "Ahmed R.",
+    role: "Marketing Manager",
+    rating: 4.8,
+    quote:
+      "The social media designs were visually strong, consistent, and highly professional. They gave our brand a clear and modern presence across all platforms.",
+  },
+  {
+    initials: "MR",
+    name: "Maha R.",
+    role: "Brand Owner",
+    rating: 4.7,
+    quote:
+      "The packaging design was creative, polished, and aligned perfectly with the product identity. The final result looked premium and production-ready.",
+  },
+  {
+    initials: "KS",
+    name: "Khaled S.",
+    role: "Print Business Owner",
+    rating: 4.6,
+    quote:
+      "The print materials were accurate, well-prepared, and easy to execute. File organization and final output quality were excellent from start to finish.",
+  },
 ];
+
+function renderStars(rating: number) {
+  const fullStars = Math.floor(rating);
+
+  return Array.from({ length: 5 }).map((_, i) => (
+    <Star
+      key={i}
+      className={`h-4 w-4 ${
+        i < fullStars ? "fill-[#40FF00] text-[#40FF00]" : "text-white/20"
+      }`}
+    />
+  ));
+}
 
 export default function TrustedBy() {
   return (
-    <section className="py-10">
+    <section className="py-20 sm:py-24">
       <Reveal>
         <div className="mx-auto max-w-[1320px] px-3 sm:px-4 lg:px-5">
-          <div className="glass glass-highlight rounded-3xl p-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <div className="text-sm font-semibold text-white/80">
-                  Trusted tools in my workflow
-                </div>
-                <div className="mt-1 text-xs text-white/60">
-                  Built for speed, consistency, and premium output.
-                </div>
-              </div>
-
-              <div
-                className="hidden h-[2px] flex-1 rounded-full sm:block"
-                style={{
-                  background:
-                    "linear-gradient(90deg, rgba(64,255,0,0.35), rgba(124,58,237,0.18), rgba(0,0,0,0))",
-                }}
-              />
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                My clients
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/70 sm:text-base">
+                Selected feedback on social media design, packaging, and print work —
+                focused on quality, clarity, and professional execution.
+              </p>
             </div>
 
-            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-              {TOOLS.map((t) => {
-                const Icon = t.icon;
-                return (
-                  <div
-                    key={t.name}
-                    className="glass glass-hover glow-hover rounded-2xl px-4 py-3"
-                  >
-                    <div className="flex items-center justify-center gap-2 text-sm font-semibold text-white/80">
-                      <Icon className="h-4 w-4 text-[#40FF00]" />
-                      {t.name}
+            <div className="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-white/80 backdrop-blur-xl">
+              <span className="text-white">★</span>
+              <span>Average rating 4.7/5</span>
+            </div>
+          </div>
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-3">
+            {testimonials.map((item) => (
+              <div
+                key={item.name}
+                className="glass glass-highlight rounded-3xl border border-white/10 p-6"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-lg font-bold text-white/90">
+                      {item.initials}
+                    </div>
+
+                    <div>
+                      <h3 className="text-xl font-bold text-white">{item.name}</h3>
+                      <p className="text-sm text-white/60">{item.role}</p>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+
+                  <div className="flex items-center gap-1">
+                    {renderStars(item.rating)}
+                  </div>
+                </div>
+
+                <p className="mt-8 text-base leading-relaxed text-white/78">
+                  “{item.quote}”
+                </p>
+
+                <div className="mt-8 flex items-center justify-between text-sm text-white/55">
+                  <span>Verified client</span>
+                  <span className="inline-flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-[#40FF00]" />
+                    {item.rating.toFixed(1)} / 5
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </Reveal>
