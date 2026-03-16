@@ -1,9 +1,9 @@
+export const dynamic = "force-dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { client } from "@/sanity/lib/client";
 import { projectsQuery } from "@/sanity/lib/queries";
 import { urlFor } from "@/sanity/lib/image";
-
 type SanityProject = {
   _id: string;
   title: string;

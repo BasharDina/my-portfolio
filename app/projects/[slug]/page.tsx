@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -35,16 +36,6 @@ type SanityProject = {
   sections?: ProjectSection[];
   galleryGroups?: GalleryGroup[];
 };
-
-export async function generateStaticParams() {
-  const projects: SanityProject[] = await client.fetch(projectsQuery);
-
-  return projects
-    .filter((project) => project.slug?.current)
-    .map((project) => ({
-      slug: project.slug!.current,
-    }));
-}
 
 export async function generateMetadata(
   props: { params: Promise<{ slug: string }> }
