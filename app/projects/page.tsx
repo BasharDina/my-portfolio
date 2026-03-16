@@ -17,8 +17,11 @@ type SanityProject = {
 };
 
 export default async function ProjectsPage() {
-  const projects: SanityProject[] = await client.fetch(projectsQuery);
-
+const projects: SanityProject[] = await client.fetch(
+  projectsQuery,
+  {},
+  { cache: "no-store" }
+);
   return (
     <main className="mx-auto max-w-[1320px] px-4 py-10 text-white md:py-12">
       <section className="glass glass-highlight rounded-3xl border border-white/10 p-7">

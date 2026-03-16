@@ -41,7 +41,17 @@ export async function generateMetadata(
   props: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
   const { slug } = await props.params;
-  const project: SanityProject | null = await client.fetch(projectBySlugQuery, { slug });
+ const project: SanityProject | null = await client.fetch(
+  projectBySlugQuery,
+  { slug },
+  { cache: "no-store" }
+);
+
+const allProjects: SanityProject[] = await client.fetch(
+  projectsQuery,
+  {},
+  { cache: "no-store" }
+);
 
   if (!project) return { title: "Project not found" };
 

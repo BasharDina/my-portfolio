@@ -18,9 +18,16 @@ type FeaturedProject = {
 };
 
 export default async function ProjectsPreview() {
-  const featured: FeaturedProject[] = await client.fetch(featuredProjectsQuery);
-  const fallbackProjects: FeaturedProject[] =
-    featured.length === 0 ? await client.fetch(projectsQuery) : [];
+  const featured: FeaturedProject[] = await client.fetch(
+  featuredProjectsQuery,
+  {},
+  { cache: "no-store" }
+);
+
+const fallbackProjects: FeaturedProject[] =
+  featured.length === 0
+    ? await client.fetch(projectsQuery, {}, { cache: "no-store" })
+    : [];
 
   const projectsToShow =
     featured.length > 0 ? featured.slice(0, 3) : fallbackProjects.slice(0, 3);
