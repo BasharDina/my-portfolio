@@ -1,5 +1,4 @@
 import Hero from "./components/sections/Hero";
-import About from "./components/sections/About";
 import Services from "./components/sections/Services";
 import TrustedBy from "./components/sections/TrustedBy";
 import ProjectsPreview from "./components/sections/ProjectsPreview";
@@ -12,12 +11,6 @@ export default function Home() {
     <main className="min-h-screen">
       <section id="home">
         <Hero />
-      </section>
-
-      <div className="section-divider" />
-
-      <section id="about" className="container-lux">
-        <About />
       </section>
 
       <div className="section-divider" />
@@ -46,7 +39,7 @@ export default function Home() {
 
       <div className="section-divider" />
 
-      <section className="container-lux pb-14 pt-6 sm:pb-16 sm:pt-8">
+      <section className="container-lux pb-12 pt-4 sm:pb-14 sm:pt-6">
         <div className="glass glass-highlight rounded-3xl p-8 text-center sm:p-10">
           <div className="mx-auto max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#40FF00]">

@@ -45,8 +45,8 @@ function renderStars(rating: number) {
 
 export default function TrustedBy() {
   return (
-    <section className="py-20 sm:py-24">
-      <Reveal>
+<section className="py-12 sm:py-16">
+        <Reveal>
         <div className="mx-auto max-w-[1320px] px-3 sm:px-4 lg:px-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>

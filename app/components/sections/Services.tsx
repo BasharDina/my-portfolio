@@ -50,8 +50,8 @@ const services = [
 
 export default function Services() {
   return (
-    <section id="services" className="py-20 sm:py-24">
-      <Reveal>
+<section id="services" className="py-12 sm:py-16">
+        <Reveal>
         <div className="mx-auto max-w-[1320px] px-3 sm:px-4 lg:px-5">
           <div className="max-w-3xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/55">

@@ -134,17 +134,16 @@ export default function Hero() {
     <section
       ref={sectionRef}
       id="home"
-      className="relative overflow-hidden pt-6 pb-16 sm:pt-8 sm:pb-18 lg:pt-10 lg:pb-20"
-    >
+className="relative overflow-hidden pt-2 pb-8 sm:pt-4 sm:pb-10 lg:pt-6 lg:pb-12"    >
       <div className="absolute inset-0 -z-10">
         <div
           className="absolute inset-0"
           style={{
             background: `
-              radial-gradient(700px 500px at 72% 36%, rgba(64, 255, 0, 0.14), transparent 62%),
-              radial-gradient(660px 460px at 34% 65%, rgba(124, 58, 237, 0.18), transparent 64%),
-              radial-gradient(980px 580px at 50% -18%, rgba(255, 255, 255, 0.08), transparent 70%),
-              linear-gradient(to bottom, rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.58))
+              radial-gradient(700px 500px at 72% 36%, rgba(64, 255, 0, 0.12), transparent 62%),
+              radial-gradient(660px 460px at 34% 65%, rgba(124, 58, 237, 0.14), transparent 64%),
+              radial-gradient(980px 580px at 50% -18%, rgba(255, 255, 255, 0.04), transparent 70%),
+             )
             `,
           }}
         />

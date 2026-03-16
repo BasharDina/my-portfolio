@@ -40,8 +40,8 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact" className="py-20 sm:py-24">
-      <Reveal>
+<section id="contact" className="py-12 sm:py-16">
+        <Reveal>
         <div className="mx-auto max-w-[1320px] px-3 sm:px-4 lg:px-5">
           <div className="grid gap-8 lg:grid-cols-[1fr_1.2fr]">
             <div className="glass glass-highlight rounded-3xl border border-white/10 p-7 sm:p-8">
